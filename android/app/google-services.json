@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "918802207832",
+    "project_id": "incubateqr",
+    "storage_bucket": "incubateqr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918802207832:android:fe05da90101cb8d8c5e62d",
+        "android_client_info": {
+          "package_name": "com.example.incubateqr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "918802207832-6mr3mrq9scb9kakpe201qbeerd1iorvd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWfF5GUyK0heKwmJAKLV-fPY-UM2x5lWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "918802207832-6mr3mrq9scb9kakpe201qbeerd1iorvd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
