@@ -1,24 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:freshone/csv.dart';
 import 'package:freshone/pages/detail.dart';
+import 'package:freshone/pages/widgets/department.dart';
+import 'package:freshone/pages/widgets/search.dart';
+import 'package:intl/date_symbol_data_file.dart';
+import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
 import '../pdf/api/pdf_api.dart';
 import '../pdf/api/pdf_invoice_api.dart';
 import '../pdf/model/invoice.dart';
 import 'widgets/back.dart';
 
-class category extends StatelessWidget {
+enum SampleItem { itemOne, itemtwo, itemthree, itemfour }
+
+class category extends StatefulWidget {
   category({super.key, required this.controller, required this.depart});
   final depart;
   final controller;
-  var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
-  final collection = FirebaseFirestore.instance.collection("products");
 
+  @override
+  State<category> createState() => _categoryState();
+}
+
+class _categoryState extends State<category> {
+  var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
+  String sort = "Date in AO";
+
+  final collection = FirebaseFirestore.instance.collection("products");
+  int aa = 0;
+  SampleItem? selectedMenu;
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Container(
           height: height,
@@ -41,13 +57,23 @@ class category extends StatelessWidget {
                   children: [
                     back(width: width, fontcolor: fontcolor),
                     Text(
-                      depart.toString().toUpperCase(),
+                      widget.depart.toString().toUpperCase(),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: width * 0.06,
                         color: fontcolor(1.0),
                       ),
                     ),
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage(
+                                        depart: widget.depart,
+                                      )));
+                        },
+                        icon: Icon(Icons.abc)),
                     IconButton(
                       icon: Icon(
                         Icons.share,
@@ -57,15 +83,134 @@ class category extends StatelessWidget {
                     ),
                   ],
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Sorted According to $sort",
+                      style: TextStyle(color: Colors.grey, fontSize: 19),
+                    ),
+                    PopupMenuButton(
+                      iconSize: 26,
+                      tooltip: "Sort",
+                      initialValue: selectedMenu,
+                      onSelected: (SampleItem item) => {
+                        setState(() {
+                          selectedMenu = item;
+                        })
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<SampleItem>>[
+                        PopupMenuItem(
+                          child: Text("Sort In AO"),
+                          onTap: () {
+                            setState(() {
+                              aa = 0;
+                              sort = "";
+                              sort += "Date in AO";
+                            });
+                          },
+                        ),
+                        PopupMenuItem(
+                          child: Text("Sort by DO"),
+                          onTap: () {
+                            setState(() {
+                              aa = 1;
+                              sort = "";
+                              sort += "Date in Do";
+                            });
+                          },
+                        ),
+                        PopupMenuItem(
+                          child: Text("Sort by Name"),
+                          onTap: () {
+                            setState(() {
+                              aa = 2;
+                              sort = "";
+                              sort += "Name";
+                            });
+                          },
+                        ),
+                        PopupMenuItem(
+                          child: Text("Sort by Price"),
+                          onTap: () {
+                            setState(() {
+                              aa = 3;
+                              sort = "";
+                              sort += "Price";
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.only(top: height * 0.02),
                     child: StreamBuilder(
-                        stream: collection.doc(depart).snapshots(),
+                        stream: collection.doc(widget.depart).snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             final snap = snapshot.data!.data()!.values.toList();
                             final qr = snapshot.data!.data()!.keys.toList();
+                            DateTime now = DateTime.now();
+                            // final format =
+                            //     DateFormat('dd/MM/yy').format(snapshot.data!);
+                            // for (var i = 0; i < qr.length; i++) {
+                            //   snap[i]['date'] = DateFormat('dd/MM/yy')
+                            //       .format(DateTime.parse("2012-02-27"));
+
+                            //   print(snap[i]['date']);
+                            // }
+
+                            // print(snap);
+                            // final fer = [];
+                            // print(format);
+                            aa == 0
+                                ? snap.sort((a, b) {
+                                    var adate = a['date'];
+                                    var bdate = b['date'];
+                                    return adate.compareTo(bdate);
+                                  })
+                                : aa == 1
+                                    ? snap.sort((a, b) {
+                                        var adate = a['date'];
+                                        var bdate = b['date'];
+                                        return bdate.compareTo(adate);
+                                      })
+                                    : aa == 2
+                                        ? snap.sort((a, b) {
+                                            var aname = a['name']
+                                                .toString()
+                                                .toLowerCase();
+
+                                            var bname = b['name']
+                                                .toString()
+                                                .toLowerCase();
+                                            return aname.compareTo(bname);
+                                          })
+                                        : snap.sort((a, b) {
+                                            var aname = a['price'];
+                                            var bname = b['price'];
+
+                                            return aname.compareTo(bname);
+                                          });
+
+                            // print(snap);
+
+                            //decendind
+                            // snap.sort((a, b) {
+                            //   return DateTime.parse(b['date'])
+                            //       .compareTo(DateTime.parse(a['date']));
+                            // });
+                            // fer.sort((a, b) => a.compareTo(b));
+                            // for (var i = 0; i < qr.length; i++) {
+                            //   // print(qr[i]);
+                            //   fer.add(snap[i]['date']);
+                            //   print(snap[i]['date']);
+                            // }
+                            // print(snap);
                             return ListView.builder(
                               itemCount: snap.length,
                               itemBuilder: (context, index) {
@@ -78,7 +223,7 @@ class category extends StatelessWidget {
                                               secondaryAnimation) =>
                                           FadeTransition(
                                         opacity: Tween<double>(begin: 1, end: 0)
-                                            .animate(controller),
+                                            .animate(widget.controller),
                                         child: detail(
                                           qr: qr[index],
                                           data: data,
@@ -140,13 +285,13 @@ class category extends StatelessWidget {
   void pdfgenerator() async {
     final dataref = await FirebaseFirestore.instance
         .collection('products')
-        .doc(depart)
+        .doc(widget.depart)
         .get();
     List<InvoiceItem> listofInvoice = [];
     for (var data in dataref.data()!.entries) {
       final map = data.value as Map;
       final invice = InvoiceItem(
-          category: depart.toString().toUpperCase(),
+          category: widget.depart.toString().toUpperCase(),
           url: data.key,
           name: map['name'],
           date: map['date'],

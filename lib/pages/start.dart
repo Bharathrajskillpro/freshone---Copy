@@ -6,6 +6,7 @@ import 'widgets/department.dart';
 import 'widgets/recent.dart';
 import 'widgets/search.dart';
 import 'widgets/topbar.dart';
+import 'widgets/avatar.dart';
 
 class start extends StatelessWidget {
   start({super.key});
@@ -54,6 +55,9 @@ class start extends StatelessWidget {
                   height: height * 0.02,
                 ),
                 // Collaborator(fontcolor: fontcolor),
+                avatar(
+                    // fontcolor:fontcolor
+                    ),
               ],
             ),
           ),

@@ -85,6 +85,7 @@ class _addpageState extends State<addpage> {
     PdfApi.openFile(pdfFile);
   }
 
+  var a = 0;
   var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
   @override
   Widget build(BuildContext context) {
@@ -122,7 +123,7 @@ class _addpageState extends State<addpage> {
                         fontSize: width * 0.045),
                   ),
                   catname == null
-                      ? const Text("Chooose an category")
+                      ? const Text("Choose an category")
                       : Padding(
                           padding: const EdgeInsets.only(right: 10),
                           child: ShaderMask(
@@ -159,11 +160,14 @@ class _addpageState extends State<addpage> {
                             return GestureDetector(
                               onTap: () => setState(() {
                                 catname = list[index].id.toString();
+                                a = index;
                               }),
                               child: Container(
                                 margin: const EdgeInsets.only(right: 12),
                                 decoration: BoxDecoration(
-                                    color: fontcolor(.1),
+                                    color: (a == index && catname != null)
+                                        ? Colors.greenAccent
+                                        : fontcolor(.1),
                                     border: Border.all(color: fontcolor(.1)),
                                     borderRadius: BorderRadius.circular(8)),
                                 padding: const EdgeInsets.symmetric(
@@ -191,7 +195,7 @@ class _addpageState extends State<addpage> {
                 height: height * 0.02,
               ),
               field(width, 'Product Name', pname, TextInputType.text,
-                  Icons.inventory_2_outlined),
+                  Icons.inventory_2_outlined, ''),
               // SizedBox(
               //   height: height * 0.02,
               // ),
@@ -201,22 +205,22 @@ class _addpageState extends State<addpage> {
                 height: height * 0.02,
               ),
               field(width, 'Room No.', room, TextInputType.text,
-                  Icons.meeting_room_rounded),
+                  Icons.meeting_room_rounded, ''),
               SizedBox(
                 height: height * 0.02,
               ),
               field(width, 'Company', company, TextInputType.text,
-                  Icons.apartment_sharp),
+                  Icons.apartment_sharp, ''),
               SizedBox(
                 height: height * 0.02,
               ),
               field(width, 'price', price, TextInputType.number,
-                  Icons.currency_rupee_rounded),
+                  Icons.currency_rupee_rounded, "a"),
               SizedBox(
                 height: height * 0.02,
               ),
               field(width, 'Specification', spec, TextInputType.text,
-                  Icons.description_outlined),
+                  Icons.description_outlined, ''),
               SizedBox(
                 height: height * 0.02,
               ),
@@ -449,8 +453,13 @@ class _addpageState extends State<addpage> {
           );
   }
 
-  TextField field(double width, String labeltext,
-      TextEditingController controller, TextInputType type, IconData icon) {
+  TextField field(
+      double width,
+      String labeltext,
+      TextEditingController controller,
+      TextInputType type,
+      IconData icon,
+      String a) {
     return TextField(
       controller: controller,
       cursorColor: fontcolor(1.0),
@@ -458,6 +467,12 @@ class _addpageState extends State<addpage> {
       style: TextStyle(fontSize: width * 0.04),
       keyboardType: type,
       decoration: InputDecoration(
+        errorText: a == "a"
+            ? controller.text.contains(RegExp(r'[a-zA-Z]'))
+                ? "This Field can't have character"
+                : null
+            : null,
+        errorStyle: TextStyle(),
         labelText: labeltext,
         labelStyle:
             TextStyle(color: fontcolor(.5), fontWeight: FontWeight.w500),
