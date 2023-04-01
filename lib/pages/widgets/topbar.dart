@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:freshone/auth.dart';
@@ -26,6 +28,7 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
   late Animation<double> animate;
   String? email = auth().currentUser!.email;
   bool lightOn = false;
+  File? localimage;
 
   @override
   void initState() {
@@ -75,6 +78,8 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
           final entries = snapshot.data!.data()!.entries;
           final name =
               entries.firstWhere((element) => element.key == 'name').value;
+          final path =
+              entries.firstWhere((element) => element.key == 'photo').value;
           return Stack(
             clipBehavior: Clip.none,
             children: [
@@ -131,20 +136,28 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                     ],
                   ),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
+                    onTap: () async {
+                      final image = await Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => profile()));
+                      setState(() {
+                        localimage = image;
+                      });
                     },
                     child: Container(
+                      height: width * 0.16,
+                      width: width * 0.16,
                       padding: EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: widget.fontcolor(.08)),
-                      child: Icon(
-                        Icons.logout_rounded,
-                        size: height * 0.05,
-                        color: widget.fontcolor(1.0),
-                      ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: widget.fontcolor(1.0), width: 2),
+                          image: localimage != null
+                              ? DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: FileImage(localimage!))
+                              : DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(path))),
                     ),
                   )
                 ],
@@ -158,7 +171,7 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                     },
                     onPanUpdate: (details) {
                       setState(() {
-                        if (top >= 30) {
+                        if (top >= 22) {
                           runAnimation();
                         } else {
                           top = (details.localPosition.dy / 4.0);

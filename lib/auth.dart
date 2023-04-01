@@ -27,4 +27,15 @@ class auth {
   Future<void> signout() async {
     await _firebaseAuth.signOut();
   }
+
+  Future changePassword(
+      {required email, required oldPassword, required newPassword}) async {
+    final cred =
+        EmailAuthProvider.credential(email: email, password: oldPassword);
+    await currentUser!.reauthenticateWithCredential(cred).then((value) {
+      currentUser!.updatePassword(newPassword);
+    }).catchError((onError) {
+      print(onError);
+    });
+  }
 }
