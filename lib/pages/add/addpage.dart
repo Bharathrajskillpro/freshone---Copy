@@ -6,10 +6,12 @@ import 'package:freshone/pdf/api/qrpdf.dart';
 import 'package:freshone/pdf/model/qrinvoice.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../pdf/api/pdf_api.dart';
-import 'widgets/back.dart';
+import '../../pdf/api/pdf_api.dart';
+import '../../theme/theme.dart';
+import '../widgets/back.dart';
 
 class addpage extends StatefulWidget {
   const addpage({super.key});
@@ -64,10 +66,9 @@ class _addpageState extends State<addpage> {
     await collection.doc(catname).set({
       barcode: {
         'department': catname,
-        'date': DateFormat('d/M/y').format(DateTime.now()),
+        'date': DateFormat('dd/MM/yyyy').format(DateTime.now()),
         'name': pname.text.trim(),
         'faculty': faculty_email!.trim(),
-        // fname.text.trim(),
         'room': room.text.trim(),
         'company': company.text.trim(),
         'price': int.parse(price.text.trim()),
@@ -86,21 +87,33 @@ class _addpageState extends State<addpage> {
   }
 
   var a = 0;
-  var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
+  // var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isdark = themeProvider.isDark;
+    fontcolor(opacity) => !isdark
+        ? Color.fromRGBO(239, 241, 255, opacity)
+        : Color.fromRGBO(48, 40, 76, opacity);
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: Container(
         height: height,
         width: width,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 241, 235, 252),
-              Color.fromARGB(255, 255, 255, 255)
-            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isdark
+                ? const [
+                    Color.fromARGB(255, 255, 255, 255),
+                    Color.fromRGBO(235, 235, 255, 1)
+                  ]
+                : const [
+                    Color.fromRGBO(63, 64, 100, 1),
+                    Color.fromRGBO(34, 34, 61, 1)
+                  ],
           ),
         ),
         padding: EdgeInsets.only(
@@ -108,7 +121,7 @@ class _addpageState extends State<addpage> {
         child: SafeArea(
           child: ListView(
             children: [
-              tophead(width),
+              tophead(width, fontcolor),
               SizedBox(
                 height: height * 0.04,
               ),
@@ -166,7 +179,7 @@ class _addpageState extends State<addpage> {
                                 margin: const EdgeInsets.only(right: 12),
                                 decoration: BoxDecoration(
                                     color: (a == index && catname != null)
-                                        ? Colors.greenAccent
+                                        ? Color.fromARGB(255, 0, 140, 255)
                                         : fontcolor(.1),
                                     border: Border.all(color: fontcolor(.1)),
                                     borderRadius: BorderRadius.circular(8)),
@@ -195,7 +208,7 @@ class _addpageState extends State<addpage> {
                 height: height * 0.02,
               ),
               field(width, 'Product Name', pname, TextInputType.text,
-                  Icons.inventory_2_outlined, ''),
+                  Icons.inventory_2_outlined, fontcolor, ''),
               // SizedBox(
               //   height: height * 0.02,
               // ),
@@ -205,27 +218,27 @@ class _addpageState extends State<addpage> {
                 height: height * 0.02,
               ),
               field(width, 'Room No.', room, TextInputType.text,
-                  Icons.meeting_room_rounded, ''),
+                  Icons.meeting_room_rounded, fontcolor, ''),
               SizedBox(
                 height: height * 0.02,
               ),
               field(width, 'Company', company, TextInputType.text,
-                  Icons.apartment_sharp, ''),
+                  Icons.apartment_sharp, fontcolor, ""),
               SizedBox(
                 height: height * 0.02,
               ),
               field(width, 'price', price, TextInputType.number,
-                  Icons.currency_rupee_rounded, "a"),
+                  Icons.currency_rupee_rounded, fontcolor, "a"),
               SizedBox(
                 height: height * 0.02,
               ),
               field(width, 'Specification', spec, TextInputType.text,
-                  Icons.description_outlined, ''),
+                  Icons.description_outlined, fontcolor, ""),
               SizedBox(
                 height: height * 0.02,
               ),
-              shifter(width),
-              scanner(height, width),
+              shifter(width, fontcolor),
+              scanner(height, width, fontcolor),
               SizedBox(
                 height: height * 0.04,
               ),
@@ -289,7 +302,7 @@ class _addpageState extends State<addpage> {
         child: const Text("Add Product"));
   }
 
-  Row shifter(double width) {
+  Row shifter(double width, Function fontcolor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -325,7 +338,7 @@ class _addpageState extends State<addpage> {
     );
   }
 
-  Widget scanner(double height, double width) {
+  Widget scanner(double height, double width, Function fontcolor) {
     return scan == 'scan'
         ? !startcamera
             ? showimage != Uint8List(0)
@@ -459,6 +472,7 @@ class _addpageState extends State<addpage> {
       TextEditingController controller,
       TextInputType type,
       IconData icon,
+      Function fontcolor,
       String a) {
     return TextField(
       controller: controller,
@@ -500,7 +514,7 @@ class _addpageState extends State<addpage> {
     );
   }
 
-  Row tophead(double width) {
+  Row tophead(double width, var fontcolor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

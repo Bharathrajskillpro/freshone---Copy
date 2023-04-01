@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'widgets/collaborator.dart';
-import 'widgets/addpush.dart';
-import 'widgets/department.dart';
+import '../theme/theme.dart';
+import 'add/addpush.dart';
+import 'department/department.dart';
 import 'widgets/recent.dart';
 import 'widgets/search.dart';
 import 'widgets/topbar.dart';
-import 'widgets/avatar.dart';
 
 class start extends StatelessWidget {
   start({super.key});
 
-  var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
-
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isdark = themeProvider.isDark;
+    fontcolor(opacity) => !isdark
+        ? Color.fromRGBO(239, 241, 255, opacity)
+        : Color.fromRGBO(48, 40, 76, opacity);
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -23,16 +26,23 @@ class start extends StatelessWidget {
         child: Container(
           height: height,
           width: width,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 241, 235, 252),
-                Color.fromARGB(255, 255, 255, 255)
-              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isdark
+                  ? const [
+                      Color.fromARGB(255, 255, 255, 255),
+                      Color.fromRGBO(235, 235, 255, 1)
+                    ]
+                  : const [
+                      Color.fromRGBO(63, 64, 100, 1),
+                      Color.fromRGBO(34, 34, 61, 1)
+                    ],
             ),
           ),
           padding: EdgeInsets.only(
-              top: height * .02, left: width * 0.04, right: width * 0.04),
+              top: height * .02, left: width * 0.05, right: width * 0.05),
           child: SafeArea(
             child: Column(
               children: [
@@ -40,24 +50,17 @@ class start extends StatelessWidget {
                   fontcolor: fontcolor,
                 ),
                 SizedBox(
-                  height: height * 0.04,
+                  height: height * 0.05,
                 ),
                 search(fontcolor: fontcolor),
                 SizedBox(
-                  height: height * 0.02,
+                  height: height * 0.04,
                 ),
                 department(fontcolor: fontcolor),
                 SizedBox(
-                  height: height * 0.02,
+                  height: height * 0.04,
                 ),
                 recent(fontcolor: fontcolor),
-                SizedBox(
-                  height: height * 0.02,
-                ),
-                // Collaborator(fontcolor: fontcolor),
-                avatar(
-                    // fontcolor:fontcolor
-                    ),
               ],
             ),
           ),

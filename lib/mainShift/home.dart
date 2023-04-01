@@ -5,7 +5,7 @@ import '/pages/start.dart';
 import '../auth.dart';
 
 class home extends StatelessWidget {
-  const home({super.key});
+  home({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -66,13 +66,8 @@ class _losiState extends State<losi> {
     }
   }
 
+  String? p;
   Future<void> addUser() async {
-    final path = 'photo/${emailcontroller.text.trim()}';
-    final ref = FirebaseStorage.instance.ref().child(path);
-    final wait = ref.putFile(image!);
-    final oncomple = await wait.whenComplete(() => {});
-    final p = await oncomple.ref.getDownloadURL();
-    print(p);
     await FirebaseFirestore.instance
         .collection('users')
         .doc(emailcontroller.text.trim().toLowerCase())
@@ -81,83 +76,102 @@ class _losiState extends State<losi> {
         'name': nameController.text.trim(),
         'email': emailcontroller.text.trim().toLowerCase(),
         'password': passwordcontroller.text.trim(),
-        'photo': p,
+        // 'photo': p,
       },
     );
   }
 
-  File? image;
+  File? imager;
 
-  Future imagepicker(ImageSource source) async {
-    try {
-      final image = await ImagePicker().pickImage(source: source);
-      if (image == null) return;
-      final tempImage = File(image.path);
-      setState(() => this.image = tempImage);
-    } on PlatformException catch (e) {
-      print('Failed to pick the image');
-    }
-  }
+  String? firstemail;
 
-  snackbar() => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Color.fromARGB(255, 109, 109, 109),
-          content: Column(
-            children: [
-              selector(Icons.camera, "Camera", ImageSource.camera),
-              const SizedBox(
-                height: 12,
-              ),
-              selector(Icons.folder, "Gallery", ImageSource.gallery)
-            ],
-          ),
-        ),
-      );
+  // Future imagepicker(ImageSource source) async {
+  //   try {
+  //     final image = await ImagePicker().pickImage(source: source);
+  //     if (image == null) return;
+  //     final tempImage = File(image.path);
+  //     setState(() => this.imager = tempImage);
+  //     final path = 'photo/${emailcontroller.text.trim()}';
+  //     print(path);
+  //     final ref = FirebaseStorage.instance.ref().child(path).putFile(imager!);
+  //     final oncomple = await ref.whenComplete(() => {});
+  //     p = await oncomple.ref.getDownloadURL();
+  //     print(p);
+  //   } on PlatformException catch (e) {
+  //     print('Failed to pick the image');
+  //   }
+  // }
 
-  InkWell photo(double height, Image imager, String fromwere) {
-    return InkWell(
-      onTap: () => snackbar(),
-      child: Stack(
-        children: [
-          ClipOval(
-            child: imager,
-          ),
-          fromwere == "image"
-              ? const Positioned(
-                  bottom: 0,
-                  right: 4,
-                  child: Icon(
-                    Icons.add_a_photo_rounded,
-                    color: Colors.greenAccent,
-                  ),
-                )
-              : const SizedBox(),
-        ],
-      ),
-    );
-  }
+  // snackbar() => ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         backgroundColor: Color.fromARGB(255, 255, 255, 255),
+  //         content: Column(
+  //           children: [
+  //             selector(Icons.camera, "Camera", ImageSource.camera),
+  //             const SizedBox(
+  //               height: 12,
+  //             ),
+  //             selector(Icons.folder, "Gallery", ImageSource.gallery)
+  //           ],
+  //         ),
+  //       ),
+  //     );
 
-  Widget selector(IconData icon, String field, ImageSource source) {
-    return GestureDetector(
-      onTap: () => imagepicker(source),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(
-            width: 10,
-          ),
-          Icon(
-            icon,
-            color: Colors.white,
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          Text(field),
-        ],
-      ),
-    );
-  }
+  // InkWell photo(double height, Image imager, String fromwere) {
+  //   return InkWell(
+  //     onTap: () {
+  //       if (emailcontroller.text.isEmpty) {
+  //         setState(() {
+  //           firstemail = "Please enter the email first";
+  //         });
+  //       } else {
+  //         snackbar();
+  //       }
+  //     },
+  //     child: Stack(
+  //       children: [
+  //         ClipOval(
+  //           child: imager,
+  //         ),
+  //         fromwere == "image"
+  //             ? const Positioned(
+  //                 bottom: 0,
+  //                 right: 4,
+  //                 child: Icon(
+  //                   Icons.add_a_photo_rounded,
+  //                   color: Colors.greenAccent,
+  //                 ),
+  //               )
+  //             : const SizedBox(),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget selector(IconData icon, String field, ImageSource source) {
+  //   return GestureDetector(
+  //     onTap: () => imagepicker(source),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         const SizedBox(
+  //           width: 10,
+  //         ),
+  //         Icon(
+  //           icon,
+  //           color: Color.fromARGB(255, 0, 0, 0),
+  //         ),
+  //         const SizedBox(
+  //           width: 20,
+  //         ),
+  //         Text(
+  //           field,
+  //           style: TextStyle(color: Colors.black),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget shifting() {
     return Row(
@@ -178,7 +192,7 @@ class _losiState extends State<losi> {
             style: const TextStyle(
                 fontSize: 18,
                 letterSpacing: 1,
-                color: Color.fromARGB(255, 102, 227, 189),
+                color: Color.fromRGBO(248, 97, 146, 1),
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Acme'),
           ),
@@ -213,55 +227,56 @@ class _losiState extends State<losi> {
       child: Container(
           decoration: BoxDecoration(
               gradient: const LinearGradient(colors: [
-                Color.fromARGB(255, 240, 255, 250),
-                Color.fromARGB(255, 194, 255, 233)
+                Color.fromRGBO(255, 211, 223, 1),
+                Color.fromRGBO(255, 161, 191, 1)
               ]),
-              border: Border.all(
-                color: Color.fromARGB(255, 87, 222, 184),
-              ),
+              // border: Border.all(
+              //   color: Color.fromRGBO(248, 97, 146, 1),
+              // ),
               borderRadius: BorderRadius.circular(12)),
           padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: 10),
           child: Text(
             login ? 'LOGIN' : 'SIGNIN',
             style: TextStyle(
-              fontSize: width * 0.04,
-              fontWeight: FontWeight.w600,
-            ),
+                fontSize: width * 0.04,
+                fontWeight: FontWeight.w600,
+                color: Color.fromARGB(255, 63, 63, 63)),
           )),
     );
   }
 
-  TextField field(double width, String labeltext,
-      TextEditingController controller, TextInputType type, IconData icon) {
-    return TextField(
-      controller: controller,
-      cursorColor: fontcolor(1.0),
-      scrollPadding: EdgeInsets.zero,
-      style: TextStyle(fontSize: width * 0.04),
-      keyboardType: type,
-      decoration: InputDecoration(
-        labelText: labeltext,
-        labelStyle:
-            TextStyle(color: fontcolor(.5), fontWeight: FontWeight.w500),
-        prefixIconColor: fontcolor(.4),
-        fillColor: fontcolor(.8),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: fontcolor(.9)),
-            borderRadius: BorderRadius.circular(12),
-            gapPadding: 6),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: fontcolor(.2)),
-            borderRadius: BorderRadius.circular(8),
-            gapPadding: 6),
-        focusColor: fontcolor(.9),
-        border: OutlineInputBorder(
-            borderSide: BorderSide(color: fontcolor(.5)),
-            borderRadius: BorderRadius.circular(2),
-            gapPadding: 6),
-        contentPadding: EdgeInsets.zero,
-        prefixIcon: Icon(
-          icon,
-          size: width * 0.07,
+  Widget field(double width, String labeltext, TextEditingController controller,
+      TextInputType type, IconData icon) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+      ),
+      width: width * 0.85,
+      child: TextField(
+        onSubmitted: (value) {
+          setState(() {
+            if (firstemail != null && controller == emailcontroller) {
+              firstemail = null;
+            }
+          });
+        },
+        controller: controller,
+        cursorColor: fontcolor(1.0),
+        scrollPadding: EdgeInsets.zero,
+        style: TextStyle(fontSize: width * 0.04),
+        keyboardType: type,
+        decoration: InputDecoration(
+          hintText: labeltext,
+          hintStyle:
+              TextStyle(color: fontcolor(.5), fontWeight: FontWeight.w500),
+          prefixIconColor: fontcolor(.4),
+          fillColor: fontcolor(.8),
+          border: InputBorder.none,
+          prefixIcon: Icon(
+            icon,
+            size: width * 0.07,
+          ),
         ),
       ),
     );
@@ -273,64 +288,97 @@ class _losiState extends State<losi> {
 
   @override
   Widget build(BuildContext context) {
+    final color = Color.fromRGBO(239, 239, 255, 1);
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: color,
       body: SafeArea(
           child: SingleChildScrollView(
         child: Container(
           height: height,
           width: width,
           padding: EdgeInsets.symmetric(
-              horizontal: width * 0.04, vertical: height * 0.02),
+              horizontal: width * 0.04, vertical: height * 0.04),
           child: Column(
             children: [
               align(
-                Image.asset(
-                  'assets/icon/logo.png',
-                  width: width * 0.6,
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Image.asset(
+                    'assets/icon/logo.png',
+                    width: width * 0.25,
+                    height: width * 0.25,
+                  ),
                 ),
               ),
               SizedBox(height: height * 0.03),
-              Text(
-                login
-                    ? 'Welcome Back! Glad to see you, Again!'.toUpperCase()
-                    : 'Welcome to incubateqr ! have a nice journey'
-                        .toUpperCase(),
-                style: TextStyle(
-                    fontFamily: 'EBGaramond',
-                    wordSpacing: 6,
-                    fontSize: width * 0.05,
-                    fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 53, 53, 53)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    login ? 'Welcome back! to ' : 'Welcome to ',
+                    style: TextStyle(
+                        fontFamily: 'Singni',
+                        wordSpacing: 6,
+                        fontSize: width * 0.05,
+                        fontWeight: FontWeight.w600,
+                        color: const Color.fromARGB(255, 53, 53, 53)),
+                  ),
+                  Text(
+                    ' incubateQR'.toUpperCase(),
+                    style: TextStyle(
+                        fontFamily: 'Singni',
+                        wordSpacing: 6,
+                        fontSize: width * 0.05,
+                        fontWeight: FontWeight.w600,
+                        color: const Color.fromRGBO(248, 97, 146, 1)),
+                  )
+                ],
               ),
               SizedBox(
-                height: height * 0.04,
+                height: height * 0.08,
               ),
-              login
-                  ? const SizedBox()
-                  : image == null
-                      ? photo(
-                          height,
-                          Image.asset(
-                            'assets/icon/profile.png',
-                            height: height * 0.1,
-                          ),
-                          "asset")
-                      : photo(
-                          height,
-                          Image.file(
-                            image!,
-                            width: height * 0.1,
-                            height: height * 0.1,
-                            fit: BoxFit.cover,
-                          ),
-                          "image"),
-              login
-                  ? const SizedBox()
-                  : SizedBox(
-                      height: height * 0.02,
-                    ),
+              // login
+              //     ? const SizedBox()
+              //     : imager == null
+              //         ? Stack(
+              //             clipBehavior: Clip.none,
+              //             children: [
+              //               photo(
+              //                   height,
+              //                   Image.asset(
+              //                     'assets/icon/profile.png',
+              //                     height: height * 0.1,
+              //                   ),
+              //                   "asset"),
+              //               const Positioned(
+              //                 bottom: 0,
+              //                 right: -4,
+              //                 child: Icon(
+              //                   Icons.add_a_photo_rounded,
+              //                   color: Color.fromRGBO(248, 97, 146, 1),
+              //                 ),
+              //               ),
+              //             ],
+              //           )
+              //         : photo(
+              //             height,
+              //             Image.file(
+              //               imager!,
+              //               width: height * 0.1,
+              //               height: height * 0.1,
+              //               fit: BoxFit.cover,
+              //             ),
+              //             "image"),
+              // login
+              //     ? const SizedBox()
+              //     : SizedBox(
+              //         height: height * 0.03,
+              //       ),
               login
                   ? const SizedBox()
                   : field(width, 'Enter your name', nameController,
@@ -340,8 +388,25 @@ class _losiState extends State<losi> {
                   : SizedBox(
                       height: height * 0.02,
                     ),
-              field(width, 'Enter your Email Id', emailcontroller,
-                  TextInputType.emailAddress, Icons.mail_outline_rounded),
+              field(
+                width,
+                'Enter your Email Id',
+                emailcontroller,
+                TextInputType.emailAddress,
+                Icons.mail_outline_rounded,
+              ),
+              // firstemail == null
+              //     ? SizedBox()
+              //     : Align(
+              //         alignment: Alignment.centerRight,
+              //         child: Padding(
+              //           padding: EdgeInsets.only(right: width * 0.05),
+              //           child: Text(
+              //             firstemail!,
+              //             style: const TextStyle(
+              //                 color: Color.fromARGB(255, 255, 73, 134)),
+              //           ),
+              //         )),
               SizedBox(
                 height: height * 0.02,
               ),

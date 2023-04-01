@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../detail.dart';
+import 'detail.dart';
 
 class search extends StatefulWidget {
   const search({
@@ -92,7 +92,7 @@ class _searchState extends State<search> {
           margin: EdgeInsets.only(top: 10),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: widget.fontcolor(.5))),
+              border: Border.all(color: widget.fontcolor(.2))),
           child: Row(
             children: [
               Icon(
@@ -163,7 +163,6 @@ class _searchState extends State<search> {
                       detail(
                     data: data,
                     qr: barcode,
-                    // fromwere: 'search',
                   ),
                 )),
                 child: Container(

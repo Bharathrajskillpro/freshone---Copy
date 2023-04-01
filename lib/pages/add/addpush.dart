@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../addpage.dart';
+import 'addpage.dart';
 
 class addpush extends StatefulWidget {
   @override

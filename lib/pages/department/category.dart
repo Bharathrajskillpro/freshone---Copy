@@ -1,16 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:freshone/csv.dart';
-import 'package:freshone/pages/detail.dart';
-import 'package:freshone/pages/widgets/department.dart';
+// import 'package:freshone/csv.dart';
+import 'package:freshone/pages/widgets/detail.dart';
+import 'package:freshone/pages/department/department.dart';
 import 'package:freshone/pages/widgets/search.dart';
 import 'package:intl/date_symbol_data_file.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../pdf/api/pdf_api.dart';
-import '../pdf/api/pdf_invoice_api.dart';
-import '../pdf/model/invoice.dart';
-import 'widgets/back.dart';
+import '../../pdf/api/pdf_api.dart';
+import '../../pdf/api/pdf_invoice_api.dart';
+import '../../pdf/model/invoice.dart';
+import '../../theme/theme.dart';
+import '../widgets/back.dart';
 
 enum SampleItem { itemOne, itemtwo, itemthree, itemfour }
 
@@ -24,7 +26,6 @@ class category extends StatefulWidget {
 }
 
 class _categoryState extends State<category> {
-  var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
   String sort = "Date in AO";
 
   final collection = FirebaseFirestore.instance.collection("products");
@@ -32,6 +33,11 @@ class _categoryState extends State<category> {
   SampleItem? selectedMenu;
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isdark = themeProvider.isDark;
+    fontcolor(opacity) => !isdark
+        ? Color.fromRGBO(239, 241, 255, opacity)
+        : Color.fromRGBO(48, 40, 76, opacity);
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
@@ -41,12 +47,19 @@ class _categoryState extends State<category> {
           width: width,
           padding: EdgeInsets.only(
               top: height * .02, left: width * 0.04, right: width * 0.04),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 241, 235, 252),
-                Color.fromARGB(255, 255, 255, 255)
-              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isdark
+                  ? const [
+                      Color.fromARGB(255, 255, 255, 255),
+                      Color.fromRGBO(235, 235, 255, 1)
+                    ]
+                  : const [
+                      Color.fromRGBO(63, 64, 100, 1),
+                      Color.fromRGBO(34, 34, 61, 1)
+                    ],
             ),
           ),
           child: SafeArea(
@@ -65,16 +78,6 @@ class _categoryState extends State<category> {
                       ),
                     ),
                     IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyHomePage(
-                                        depart: widget.depart,
-                                      )));
-                        },
-                        icon: Icon(Icons.abc)),
-                    IconButton(
                       icon: Icon(
                         Icons.share,
                         size: width * 0.07,
@@ -88,7 +91,8 @@ class _categoryState extends State<category> {
                   children: [
                     Text(
                       "Sorted According to $sort",
-                      style: TextStyle(color: Colors.grey, fontSize: 19),
+                      style:
+                          TextStyle(color: Colors.grey, fontSize: width * 0.04),
                     ),
                     PopupMenuButton(
                       iconSize: 26,
@@ -258,7 +262,8 @@ class _categoryState extends State<category> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          log(width, 'Name: ', data['name']),
+                                          log(width, 'Name: ', data['name'],
+                                              fontcolor),
                                           facultynamer(
                                               width: width,
                                               fontcolor: fontcolor,
@@ -314,7 +319,7 @@ class _categoryState extends State<category> {
     PdfApi.openFile(pdfFile);
   }
 
-  Row log(double width, String sub, String val) {
+  Row log(double width, String sub, String val, Function fontcolor) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

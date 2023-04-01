@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import 'widgets/back.dart';
+import '../../theme/theme.dart';
+import 'back.dart';
 
 class detail extends StatelessWidget {
   detail({
@@ -13,10 +15,14 @@ class detail extends StatelessWidget {
   final qr;
   final data;
   // final fromwere;
-  var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isdark = themeProvider.isDark;
+    fontcolor(opacity) => !isdark
+        ? Color.fromRGBO(239, 241, 255, opacity)
+        : Color.fromRGBO(48, 40, 76, opacity);
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -25,12 +31,19 @@ class detail extends StatelessWidget {
             top: height * .02, left: width * 0.04, right: width * 0.04),
         height: height,
         width: width,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 241, 235, 252),
-              Color.fromARGB(255, 255, 255, 255)
-            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isdark
+                ? const [
+                    Color.fromARGB(255, 255, 255, 255),
+                    Color.fromRGBO(235, 235, 255, 1)
+                  ]
+                : const [
+                    Color.fromRGBO(63, 64, 100, 1),
+                    Color.fromRGBO(34, 34, 61, 1)
+                  ],
           ),
         ),
         child: SafeArea(
@@ -68,18 +81,18 @@ class detail extends StatelessWidget {
               //     ? log(width, 'Department: ', data['department'])
               //     : SizedBox(),
               // fromwere == 'recent' ? spacer(height, .02) : SizedBox(),
-              log(width, 'Date: ', data['date']),
+              log(width, 'Date: ', data['date'], fontcolor),
               spacer(height, .01),
               facultyname(
                   width: width, fontcolor: fontcolor, email: data['faculty']),
               spacer(height, .01),
-              log(width, 'Room: ', data['room']),
+              log(width, 'Room: ', data['room'], fontcolor),
               spacer(height, .01),
-              log(width, 'Company: ', data['company']),
+              log(width, 'Company: ', data['company'], fontcolor),
               spacer(height, .01),
-              log(width, 'Price: ', data['price'].toString()),
+              log(width, 'Price: ', data['price'].toString(), fontcolor),
               spacer(height, .01),
-              log(width, 'Spec: ', data['spec']),
+              log(width, 'Spec: ', data['spec'], fontcolor),
             ],
           ),
         ),
@@ -87,7 +100,7 @@ class detail extends StatelessWidget {
     );
   }
 
-  Row log(double width, String sub, String val) {
+  Row log(double width, String sub, String val, Function fontcolor) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

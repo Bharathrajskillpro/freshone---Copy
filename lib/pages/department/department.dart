@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../category.dart';
+import 'category.dart';
 
 class department extends StatefulWidget {
   department({

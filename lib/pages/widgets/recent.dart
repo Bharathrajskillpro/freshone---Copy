@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../detail.dart';
+import 'detail.dart';
 
 class recent extends StatefulWidget {
   recent({
@@ -52,7 +52,7 @@ class _recentState extends State<recent> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               SizedBox(
-                width: width - width * 0.08,
+                width: width - width * 0.1,
                 height: height * 0.15,
                 child: StreamBuilder(
                   stream: collection.snapshots(),
