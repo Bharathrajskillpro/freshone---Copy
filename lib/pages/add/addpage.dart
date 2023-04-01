@@ -185,7 +185,7 @@ class _addpageState extends State<addpage> {
                                 margin: const EdgeInsets.only(right: 12),
                                 decoration: BoxDecoration(
                                     color: (a == index && catname != null)
-                                        ? Color.fromARGB(255, 0, 140, 255)
+                                        ? Color.fromARGB(255, 30, 154, 255)
                                         : fontcolor(.1),
                                     border: Border.all(color: fontcolor(.1)),
                                     borderRadius: BorderRadius.circular(8)),
@@ -196,7 +196,9 @@ class _addpageState extends State<addpage> {
                                   child: Text(
                                     list[index].id.toUpperCase(),
                                     style: TextStyle(
-                                        color: fontcolor(0.9),
+                                        color: (a == index && catname != null)
+                                            ? Colors.white
+                                            : fontcolor(0.9),
                                         fontWeight: FontWeight.w500,
                                         fontSize: width * 0.035),
                                   ),
