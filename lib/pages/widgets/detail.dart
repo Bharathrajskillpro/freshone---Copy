@@ -157,12 +157,14 @@ class _facultynameState extends State<facultyname> {
   void initState() {
     // TODO: implement initState
     namefinder(widget.email);
+    print(widget.email);
     super.initState();
   }
 
   Future namefinder(email) async {
     final data =
         await FirebaseFirestore.instance.collection('users').doc(email).get();
+
     final dlist =
         data.data()!.entries.firstWhere((element) => element.key == 'name');
     print(dlist.value);

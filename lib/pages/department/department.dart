@@ -102,7 +102,7 @@ class _departmentState extends State<department> with TickerProviderStateMixin {
                         height: height * 0.02,
                       ),
                       field(width, 'Department name', dept, TextInputType.text,
-                          Icons.create),
+                          Icons.create, widget.fontcolor),
                       SizedBox(
                         height: height * 0.01,
                       ),
@@ -201,13 +201,18 @@ class _departmentState extends State<department> with TickerProviderStateMixin {
     );
   }
 
-  TextField field(double width, String labeltext,
-      TextEditingController controller, TextInputType type, IconData icon) {
+  TextField field(
+      double width,
+      String labeltext,
+      TextEditingController controller,
+      TextInputType type,
+      IconData icon,
+      Function fontcolor) {
     return TextField(
       controller: controller,
       cursorColor: widget.fontcolor(1.0),
       scrollPadding: EdgeInsets.zero,
-      style: TextStyle(fontSize: width * 0.04),
+      style: TextStyle(fontSize: width * 0.04, color: fontcolor(1.0)),
       keyboardType: type,
       decoration: InputDecoration(
         labelText: labeltext,

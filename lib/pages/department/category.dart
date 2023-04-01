@@ -81,6 +81,7 @@ class _categoryState extends State<category> {
                       icon: Icon(
                         Icons.share,
                         size: width * 0.07,
+                        color: fontcolor(1.0),
                       ),
                       onPressed: pdfgenerator,
                     ),
@@ -91,12 +92,13 @@ class _categoryState extends State<category> {
                   children: [
                     Text(
                       "Sorted According to $sort",
-                      style:
-                          TextStyle(color: Colors.grey, fontSize: width * 0.04),
+                      style: TextStyle(
+                          color: fontcolor(.4), fontSize: width * 0.04),
                     ),
                     PopupMenuButton(
                       iconSize: 26,
                       tooltip: "Sort",
+                      color: fontcolor(1.0),
                       initialValue: selectedMenu,
                       onSelected: (SampleItem item) => {
                         setState(() {

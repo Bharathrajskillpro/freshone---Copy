@@ -76,7 +76,7 @@ class _losiState extends State<losi> {
         'name': nameController.text.trim(),
         'email': emailcontroller.text.trim().toLowerCase(),
         'password': passwordcontroller.text.trim(),
-        // 'photo': p,
+        'photo': p,
       },
     );
   }
@@ -85,93 +85,93 @@ class _losiState extends State<losi> {
 
   String? firstemail;
 
-  // Future imagepicker(ImageSource source) async {
-  //   try {
-  //     final image = await ImagePicker().pickImage(source: source);
-  //     if (image == null) return;
-  //     final tempImage = File(image.path);
-  //     setState(() => this.imager = tempImage);
-  //     final path = 'photo/${emailcontroller.text.trim()}';
-  //     print(path);
-  //     final ref = FirebaseStorage.instance.ref().child(path).putFile(imager!);
-  //     final oncomple = await ref.whenComplete(() => {});
-  //     p = await oncomple.ref.getDownloadURL();
-  //     print(p);
-  //   } on PlatformException catch (e) {
-  //     print('Failed to pick the image');
-  //   }
-  // }
+  Future imagepicker(ImageSource source) async {
+    try {
+      final image = await ImagePicker().pickImage(source: source);
+      if (image == null) return;
+      final tempImage = File(image.path);
+      setState(() => this.imager = tempImage);
+      final path = 'photo/${emailcontroller.text.trim()}';
+      print(path);
+      final ref = FirebaseStorage.instance.ref().child(path).putFile(imager!);
+      final oncomple = await ref.whenComplete(() => {});
+      p = await oncomple.ref.getDownloadURL();
+      print(p);
+    } on PlatformException catch (e) {
+      print('Failed to pick the image');
+    }
+  }
 
-  // snackbar() => ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         backgroundColor: Color.fromARGB(255, 255, 255, 255),
-  //         content: Column(
-  //           children: [
-  //             selector(Icons.camera, "Camera", ImageSource.camera),
-  //             const SizedBox(
-  //               height: 12,
-  //             ),
-  //             selector(Icons.folder, "Gallery", ImageSource.gallery)
-  //           ],
-  //         ),
-  //       ),
-  //     );
+  snackbar() => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+          content: Column(
+            children: [
+              selector(Icons.camera, "Camera", ImageSource.camera),
+              const SizedBox(
+                height: 12,
+              ),
+              selector(Icons.folder, "Gallery", ImageSource.gallery)
+            ],
+          ),
+        ),
+      );
 
-  // InkWell photo(double height, Image imager, String fromwere) {
-  //   return InkWell(
-  //     onTap: () {
-  //       if (emailcontroller.text.isEmpty) {
-  //         setState(() {
-  //           firstemail = "Please enter the email first";
-  //         });
-  //       } else {
-  //         snackbar();
-  //       }
-  //     },
-  //     child: Stack(
-  //       children: [
-  //         ClipOval(
-  //           child: imager,
-  //         ),
-  //         fromwere == "image"
-  //             ? const Positioned(
-  //                 bottom: 0,
-  //                 right: 4,
-  //                 child: Icon(
-  //                   Icons.add_a_photo_rounded,
-  //                   color: Colors.greenAccent,
-  //                 ),
-  //               )
-  //             : const SizedBox(),
-  //       ],
-  //     ),
-  //   );
-  // }
+  InkWell photo(double height, Image imager, String fromwere) {
+    return InkWell(
+      onTap: () {
+        if (emailcontroller.text.isEmpty) {
+          setState(() {
+            firstemail = "Please enter the email first";
+          });
+        } else {
+          snackbar();
+        }
+      },
+      child: Stack(
+        children: [
+          ClipOval(
+            child: imager,
+          ),
+          fromwere == "image"
+              ? const Positioned(
+                  bottom: 0,
+                  right: 4,
+                  child: Icon(
+                    Icons.add_a_photo_rounded,
+                    color: Colors.greenAccent,
+                  ),
+                )
+              : const SizedBox(),
+        ],
+      ),
+    );
+  }
 
-  // Widget selector(IconData icon, String field, ImageSource source) {
-  //   return GestureDetector(
-  //     onTap: () => imagepicker(source),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.start,
-  //       children: [
-  //         const SizedBox(
-  //           width: 10,
-  //         ),
-  //         Icon(
-  //           icon,
-  //           color: Color.fromARGB(255, 0, 0, 0),
-  //         ),
-  //         const SizedBox(
-  //           width: 20,
-  //         ),
-  //         Text(
-  //           field,
-  //           style: TextStyle(color: Colors.black),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  Widget selector(IconData icon, String field, ImageSource source) {
+    return GestureDetector(
+      onTap: () => imagepicker(source),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(
+            width: 10,
+          ),
+          Icon(
+            icon,
+            color: Color.fromARGB(255, 0, 0, 0),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          Text(
+            field,
+            style: TextStyle(color: Colors.black),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget shifting() {
     return Row(
@@ -342,43 +342,43 @@ class _losiState extends State<losi> {
               SizedBox(
                 height: height * 0.08,
               ),
-              // login
-              //     ? const SizedBox()
-              //     : imager == null
-              //         ? Stack(
-              //             clipBehavior: Clip.none,
-              //             children: [
-              //               photo(
-              //                   height,
-              //                   Image.asset(
-              //                     'assets/icon/profile.png',
-              //                     height: height * 0.1,
-              //                   ),
-              //                   "asset"),
-              //               const Positioned(
-              //                 bottom: 0,
-              //                 right: -4,
-              //                 child: Icon(
-              //                   Icons.add_a_photo_rounded,
-              //                   color: Color.fromRGBO(248, 97, 146, 1),
-              //                 ),
-              //               ),
-              //             ],
-              //           )
-              //         : photo(
-              //             height,
-              //             Image.file(
-              //               imager!,
-              //               width: height * 0.1,
-              //               height: height * 0.1,
-              //               fit: BoxFit.cover,
-              //             ),
-              //             "image"),
-              // login
-              //     ? const SizedBox()
-              //     : SizedBox(
-              //         height: height * 0.03,
-              //       ),
+              login
+                  ? const SizedBox()
+                  : imager == null
+                      ? Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            photo(
+                                height,
+                                Image.asset(
+                                  'assets/icon/profile.png',
+                                  height: height * 0.1,
+                                ),
+                                "asset"),
+                            const Positioned(
+                              bottom: 0,
+                              right: -4,
+                              child: Icon(
+                                Icons.add_a_photo_rounded,
+                                color: Color.fromRGBO(248, 97, 146, 1),
+                              ),
+                            ),
+                          ],
+                        )
+                      : photo(
+                          height,
+                          Image.file(
+                            imager!,
+                            width: height * 0.1,
+                            height: height * 0.1,
+                            fit: BoxFit.cover,
+                          ),
+                          "image"),
+              login
+                  ? const SizedBox()
+                  : SizedBox(
+                      height: height * 0.03,
+                    ),
               login
                   ? const SizedBox()
                   : field(width, 'Enter your name', nameController,
@@ -395,18 +395,18 @@ class _losiState extends State<losi> {
                 TextInputType.emailAddress,
                 Icons.mail_outline_rounded,
               ),
-              // firstemail == null
-              //     ? SizedBox()
-              //     : Align(
-              //         alignment: Alignment.centerRight,
-              //         child: Padding(
-              //           padding: EdgeInsets.only(right: width * 0.05),
-              //           child: Text(
-              //             firstemail!,
-              //             style: const TextStyle(
-              //                 color: Color.fromARGB(255, 255, 73, 134)),
-              //           ),
-              //         )),
+              firstemail == null
+                  ? SizedBox()
+                  : Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: width * 0.05),
+                        child: Text(
+                          firstemail!,
+                          style: const TextStyle(
+                              color: Color.fromARGB(255, 255, 73, 134)),
+                        ),
+                      )),
               SizedBox(
                 height: height * 0.02,
               ),

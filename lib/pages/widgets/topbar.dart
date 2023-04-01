@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:freshone/auth.dart';
+import 'package:freshone/pages/profile/profilepage.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/physics.dart';
@@ -131,7 +132,8 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                   ),
                   GestureDetector(
                     onTap: () {
-                      auth().signout();
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => profile()));
                     },
                     child: Container(
                       padding: EdgeInsets.all(6),
@@ -141,6 +143,7 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                       child: Icon(
                         Icons.logout_rounded,
                         size: height * 0.05,
+                        color: widget.fontcolor(1.0),
                       ),
                     ),
                   )
@@ -159,7 +162,6 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                           runAnimation();
                         } else {
                           top = (details.localPosition.dy / 4.0);
-                          print(top);
                         }
                       });
                     },
@@ -178,12 +180,6 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        Image.asset(
-                          !lightOn
-                              ? 'assets/icon/off light.png'
-                              : 'assets/icon/on light.png',
-                          height: height * 0.15,
-                        ),
                         Positioned(
                           bottom: -10,
                           left: -10,
@@ -205,7 +201,13 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                               ]),
                             ),
                           ),
-                        )
+                        ),
+                        Image.asset(
+                          !lightOn
+                              ? 'assets/icon/off light.png'
+                              : 'assets/icon/on light.png',
+                          height: height * 0.15,
+                        ),
                       ],
                     ),
                   ))
@@ -217,18 +219,4 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
       },
     );
   }
-
-  Shimmer shimmer(Widget child) {
-    return Shimmer(
-        gradient: const LinearGradient(
-            colors: [Colors.white, Color.fromARGB(255, 201, 201, 201)]),
-        child: child);
-  }
-
-  Widget boxer(double height, double width, double rad) => Container(
-        height: height,
-        width: width,
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(rad)),
-      );
 }

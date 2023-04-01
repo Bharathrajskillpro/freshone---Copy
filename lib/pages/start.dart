@@ -42,7 +42,7 @@ class start extends StatelessWidget {
             ),
           ),
           padding: EdgeInsets.only(
-              top: height * .02, left: width * 0.05, right: width * 0.05),
+              top: height * .04, left: width * 0.05, right: width * 0.05),
           child: SafeArea(
             child: Column(
               children: [

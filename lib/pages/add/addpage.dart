@@ -136,7 +136,13 @@ class _addpageState extends State<addpage> {
                         fontSize: width * 0.045),
                   ),
                   catname == null
-                      ? const Text("Choose an category")
+                      ? Text(
+                          "Choose an category",
+                          style: TextStyle(
+                              color: fontcolor(.6),
+                              fontWeight: FontWeight.w600,
+                              fontSize: width * 0.035),
+                        )
                       : Padding(
                           padding: const EdgeInsets.only(right: 10),
                           child: ShaderMask(
@@ -478,7 +484,7 @@ class _addpageState extends State<addpage> {
       controller: controller,
       cursorColor: fontcolor(1.0),
       scrollPadding: EdgeInsets.zero,
-      style: TextStyle(fontSize: width * 0.04),
+      style: TextStyle(fontSize: width * 0.04, color: fontcolor(1.0)),
       keyboardType: type,
       decoration: InputDecoration(
         errorText: a == "a"
