@@ -8,6 +8,7 @@ import 'package:freshone/pages/widgets/back.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 
 import '../../theme/theme.dart';
 
@@ -208,11 +209,17 @@ class _profileState extends State<profile> {
                       SizedBox(
                         height: height * 0.035,
                       ),
-                      photo(
-                        width,
-                        p!,
-                        email!,
-                        fontcolor,
+                      RippleAnimation(
+                        color: fontcolor(.8),
+                        repeat: true,
+                        minRadius: 50,
+                        ripplesCount: 6,
+                        child: photo(
+                          width,
+                          p!,
+                          email!,
+                          fontcolor,
+                        ),
                       ),
                       const SizedBox(
                         height: 15,

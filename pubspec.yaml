@@ -68,6 +68,10 @@ dependencies:
   liquid_pull_to_refresh: ^3.0.1
   # provider
   provider: ^6.0.5
+  # loading animation
+  loading_animation_widget: ^1.2.0+4
+  # ripple animation
+  simple_ripple_animation: ^0.0.7
 
   
 

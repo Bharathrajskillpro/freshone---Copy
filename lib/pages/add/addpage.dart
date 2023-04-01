@@ -64,7 +64,7 @@ class _addpageState extends State<addpage> {
 
   Future add() async {
     await collection.doc(catname).set({
-      barcode: {
+      barcode.replaceAll('.', ""): {
         'department': catname,
         'date': DateFormat('dd/MM/yyyy').format(DateTime.now()),
         'name': pname.text.trim(),
@@ -80,7 +80,8 @@ class _addpageState extends State<addpage> {
 
   void pdfgenerator() async {
     final invoice = QRInvoice(
-      item: InvoiceItem(barcode: barcode, product: pname.text.trim()),
+      item: InvoiceItem(
+          barcode: barcode.replaceAll(".", ""), product: pname.text.trim()),
     );
     final pdfFile = await QRinvoiceApi.generate(invoice);
     PdfApi.openFile(pdfFile);
@@ -331,7 +332,8 @@ class _addpageState extends State<addpage> {
           onPressed: () => setState(() {
             scan = 'create';
             startcamera = false;
-            barcode = "${pname.text.trim()}_${faculty_email!.trim()}";
+            barcode =
+                "${pname.text.trim()}_${faculty_email!.trim().replaceAll('.', '')}";
           }),
           child: Text(
             'Create QR',

@@ -59,20 +59,35 @@ class _recentState extends State<recent> with TickerProviderStateMixin {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       final snap = snapshot.data!.docs.toList();
-                      return ListView.builder(
-                        padding: const EdgeInsets.all(10),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: snap.length,
-                        itemBuilder: (context, index) {
-                          if (snap[index].data().values.isNotEmpty) {
-                            final data = snap[index].data().values.first as Map;
-                            final qr = snap[index].data().keys.first.toString();
-                            return single(height, width, data, qr, context);
-                          } else {
-                            return SizedBox();
-                          }
-                        },
-                      );
+                      print(snap);
+                      if (snap.any((element) => element.data().isNotEmpty)) {
+                        return ListView.builder(
+                          padding: const EdgeInsets.all(10),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: snap.length,
+                          itemBuilder: (context, index) {
+                            if (snap[index].data().values.isNotEmpty) {
+                              final data =
+                                  snap[index].data().values.first as Map;
+                              final qr =
+                                  snap[index].data().keys.first.toString();
+                              return single(height, width, data, qr, context);
+                            } else {
+                              return SizedBox();
+                            }
+                          },
+                        );
+                      } else {
+                        return Center(
+                          child: Text(
+                            'No data found Yet!, Need to add Products',
+                            style: TextStyle(
+                                color: widget.fontcolor(.6),
+                                fontWeight: FontWeight.w600,
+                                fontSize: width * 0.04),
+                          ),
+                        );
+                      }
                     } else {
                       return SizedBox();
                     }

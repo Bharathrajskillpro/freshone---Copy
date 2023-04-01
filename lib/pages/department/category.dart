@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // import 'package:freshone/csv.dart';
@@ -24,6 +26,8 @@ class category extends StatefulWidget {
   @override
   State<category> createState() => _categoryState();
 }
+
+late String name;
 
 class _categoryState extends State<category> {
   String sort = "Date in AO";
@@ -108,7 +112,11 @@ class _categoryState extends State<category> {
                       itemBuilder: (BuildContext context) =>
                           <PopupMenuEntry<SampleItem>>[
                         PopupMenuItem(
-                          child: Text("Sort In AO"),
+                          child: Text(
+                            "Sort In AO",
+                            style: TextStyle(
+                                color: !isdark ? Colors.black : Colors.white),
+                          ),
                           onTap: () {
                             setState(() {
                               aa = 0;
@@ -118,7 +126,11 @@ class _categoryState extends State<category> {
                           },
                         ),
                         PopupMenuItem(
-                          child: Text("Sort by DO"),
+                          child: Text(
+                            "Sort by DO",
+                            style: TextStyle(
+                                color: !isdark ? Colors.black : Colors.white),
+                          ),
                           onTap: () {
                             setState(() {
                               aa = 1;
@@ -128,7 +140,11 @@ class _categoryState extends State<category> {
                           },
                         ),
                         PopupMenuItem(
-                          child: Text("Sort by Name"),
+                          child: Text(
+                            "Sort by Name",
+                            style: TextStyle(
+                                color: !isdark ? Colors.black : Colors.white),
+                          ),
                           onTap: () {
                             setState(() {
                               aa = 2;
@@ -138,7 +154,11 @@ class _categoryState extends State<category> {
                           },
                         ),
                         PopupMenuItem(
-                          child: Text("Sort by Price"),
+                          child: Text(
+                            "Sort by Price",
+                            style: TextStyle(
+                                color: !isdark ? Colors.black : Colors.white),
+                          ),
                           onTap: () {
                             setState(() {
                               aa = 3;
@@ -233,46 +253,64 @@ class _categoryState extends State<category> {
                                         child: detail(
                                           qr: qr[index],
                                           data: data,
-                                          // fromwere: 'category',
                                         ),
                                       ),
                                     ),
                                   ),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(colors: [
-                                        fontcolor(.02),
-                                        fontcolor(.06)
-                                      ]),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: fontcolor(.1)),
-                                    ),
-                                    child: Row(children: [
-                                      QrImage(
-                                        data: qr[index],
-                                        size: width * 0.175,
-                                        foregroundColor: fontcolor(.8),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 12),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(colors: [
+                                            fontcolor(.02),
+                                            fontcolor(.06)
+                                          ]),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border:
+                                              Border.all(color: fontcolor(.1)),
+                                        ),
+                                        child: Row(children: [
+                                          QrImage(
+                                            data: qr[index],
+                                            size: width * 0.175,
+                                            foregroundColor: fontcolor(.8),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceAround,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              log(width, 'Name: ', data['name'],
+                                                  fontcolor),
+                                              facultynamer(
+                                                  width: width,
+                                                  fontcolor: fontcolor,
+                                                  email: data['faculty'])
+                                            ],
+                                          ),
+                                        ]),
                                       ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          log(width, 'Name: ', data['name'],
-                                              fontcolor),
-                                          facultynamer(
-                                              width: width,
-                                              fontcolor: fontcolor,
-                                              email: data['faculty'])
-                                        ],
-                                      )
-                                    ]),
+                                      Positioned(
+                                          bottom: 15,
+                                          right: 0,
+                                          child: IconButton(
+                                            onPressed: () =>
+                                                fieldDelete(qr[index]),
+                                            icon: Icon(
+                                              Icons.delete_forever_rounded,
+                                              color: Colors.red,
+                                              size: width * 0.08,
+                                            ),
+                                          ))
+                                    ],
                                   ),
                                 );
                               },
@@ -289,6 +327,14 @@ class _categoryState extends State<category> {
     );
   }
 
+  void fieldDelete(key) async {
+    print(key);
+    final ref =
+        FirebaseFirestore.instance.collection('products').doc(widget.depart);
+    await ref.update({key: FieldValue.delete()}).catchError(
+        (onError) => print("Error"));
+  }
+
   void pdfgenerator() async {
     final dataref = await FirebaseFirestore.instance
         .collection('products')
@@ -303,7 +349,7 @@ class _categoryState extends State<category> {
           name: map['name'],
           date: map['date'],
           company: map['company'],
-          faculty: map['faculty'],
+          faculty: name,
           room: map['room'],
           price: map['price'],
           spec: map['spec']);
@@ -361,7 +407,7 @@ class facultynamer extends StatefulWidget {
 }
 
 class _facultynamerState extends State<facultynamer> {
-  late String name = '';
+  // late String name = '';
   @override
   void initState() {
     // TODO: implement initState

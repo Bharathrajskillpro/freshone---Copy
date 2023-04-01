@@ -58,7 +58,8 @@ class _searchState extends State<search> {
     for (var doc in collection.docs) {
       final list = doc.data().entries.toList();
       for (var check in list) {
-        if (check.value['name'] == name) {
+        if (check.value['name'].toString().toLowerCase() ==
+            name.toString().toLowerCase()) {
           setState(() {
             data = check.value;
             dept = doc.id;
@@ -158,13 +159,15 @@ class _searchState extends State<search> {
             : const SizedBox(),
         checked
             ? GestureDetector(
-                onTap: () => Navigator.of(context).push(PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      detail(
-                    data: data,
-                    qr: barcode,
-                  ),
-                )),
+                onTap: () => data != null
+                    ? Navigator.of(context).push(PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            detail(
+                          data: data,
+                          qr: barcode,
+                        ),
+                      ))
+                    : null,
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
@@ -185,13 +188,18 @@ class _searchState extends State<search> {
                                 subfieled(width, 'Dept: ', dept!),
                               ],
                             )
-                          : Text('data not found'),
-                      QrImage(
-                        data: barcode,
-                        size: width * 0.15,
-                        foregroundColor: widget.fontcolor(.9),
-                        padding: const EdgeInsets.all(6),
-                      )
+                          : const Text('No data found on the detail'),
+                      data != null
+                          ? QrImage(
+                              data: barcode,
+                              size: width * 0.15,
+                              foregroundColor: widget.fontcolor(.9),
+                              padding: const EdgeInsets.all(6),
+                            )
+                          : SizedBox(
+                              height: width * 0.15,
+                              width: 0,
+                            )
                     ],
                   ),
                 ),
