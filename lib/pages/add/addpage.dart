@@ -27,7 +27,7 @@ class _addpageState extends State<addpage> {
   String scan = 'scan';
   bool rescan = false;
   bool startcamera = false;
-  Uint8List showimage = Uint8List(0);
+  Uint8List? showimage;
   late String barcode = '';
   final faculty_email = auth().currentUser!.email;
 
@@ -59,7 +59,7 @@ class _addpageState extends State<addpage> {
     price.clear();
     spec.clear();
     barcode = '';
-    showimage = Uint8List(0);
+    showimage = null;
   }
 
   Future add() async {
@@ -351,7 +351,7 @@ class _addpageState extends State<addpage> {
   Widget scanner(double height, double width, Function fontcolor) {
     return scan == 'scan'
         ? !startcamera
-            ? showimage != Uint8List(0)
+            ? showimage == null
                 ? GestureDetector(
                     onTap: () => setState(() {
                       startcamera = !startcamera;
@@ -389,7 +389,7 @@ class _addpageState extends State<addpage> {
                                   color: const Color.fromARGB(
                                       255, 255, 121, 166))),
                           child: Image(
-                            image: MemoryImage(showimage),
+                            image: MemoryImage(showimage!),
                             height: height * 0.2,
                           ),
                         ),

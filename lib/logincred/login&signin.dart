@@ -205,22 +205,20 @@ class _losiState extends State<losi> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (errormessage == '' ||
-              errormessage == 'The email is badly formated') {
+          if ((errormessage == '' ||
+              errormessage == 'The email is badly formated')) {
             if (login) {
               signinwithEmailandPassword();
               print('done');
+            } else if (p == null) {
+              errorShow(true);
             } else {
               createUserwithEmailandPassword();
               addUser();
               print('object');
             }
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                duration: const Duration(milliseconds: 600),
-                content:
-                    Text('Hum?$errormessage', textAlign: TextAlign.center)));
-            errormessage = "";
+            errorShow(false);
           }
         });
       },
@@ -243,6 +241,18 @@ class _losiState extends State<losi> {
                 color: Color.fromARGB(255, 63, 63, 63)),
           )),
     );
+  }
+
+  void errorShow(check) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(milliseconds: 600),
+        content: Text(
+            check ? 'Kindly add your profile pic' : 'Hum? $errormessage',
+            textAlign: TextAlign.center),
+      ),
+    );
+    errormessage = "";
   }
 
   Widget field(double width, String labeltext, TextEditingController controller,

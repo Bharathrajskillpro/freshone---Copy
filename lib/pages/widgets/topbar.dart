@@ -27,7 +27,7 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
   var top = -20.0;
   late Animation<double> animate;
   String? email = auth().currentUser!.email;
-  bool lightOn = false;
+  bool? lightOn;
   File? localimage;
 
   @override
@@ -65,6 +65,7 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     bool isdark = themeProvider.isDark;
+    lightOn = !isdark;
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return StreamBuilder(
@@ -182,10 +183,10 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                       if (top >= 20) {
                         runAnimation();
                         setState(() {
-                          lightOn = !lightOn;
+                          lightOn = !lightOn!;
                           final provider = Provider.of<ThemeProvider>(context,
                               listen: false);
-                          provider.toggleTheme(!lightOn);
+                          provider.toggleTheme(!lightOn!);
                         });
                       }
                       print('down');
@@ -193,30 +194,33 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        Positioned(
-                          bottom: -10,
-                          left: -10,
-                          child: Container(
-                            height: height * .1,
-                            width: height * .1,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color.fromARGB(200, 255, 255, 255),
-                                    blurRadius: 90)
-                              ],
-                              gradient: RadialGradient(colors: [
-                                Color.fromARGB(100, 255, 255, 255),
-                                Color.fromARGB(50, 255, 255, 255),
-                                Color.fromARGB(5, 255, 255, 255),
-                                Color.fromARGB(1, 255, 255, 255),
-                              ]),
-                            ),
-                          ),
-                        ),
+                        lightOn!
+                            ? Positioned(
+                                bottom: -10,
+                                left: -10,
+                                child: Container(
+                                  height: height * .1,
+                                  width: height * .1,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Color.fromARGB(
+                                              200, 255, 255, 255),
+                                          blurRadius: 90)
+                                    ],
+                                    gradient: RadialGradient(colors: [
+                                      Color.fromARGB(100, 255, 255, 255),
+                                      Color.fromARGB(50, 255, 255, 255),
+                                      Color.fromARGB(5, 255, 255, 255),
+                                      Color.fromARGB(1, 255, 255, 255),
+                                    ]),
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
                         Image.asset(
-                          !lightOn
+                          !lightOn!
                               ? 'assets/icon/off light.png'
                               : 'assets/icon/on light.png',
                           height: height * 0.15,

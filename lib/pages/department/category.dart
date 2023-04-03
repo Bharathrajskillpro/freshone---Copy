@@ -1,13 +1,8 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-// import 'package:freshone/csv.dart';
+import 'package:to_csv/to_csv.dart' as exportCSV;
 import 'package:freshone/pages/widgets/detail.dart';
-import 'package:freshone/pages/department/department.dart';
-import 'package:freshone/pages/widgets/search.dart';
-import 'package:intl/date_symbol_data_file.dart';
-import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../pdf/api/pdf_api.dart';
@@ -35,6 +30,145 @@ class _categoryState extends State<category> {
   final collection = FirebaseFirestore.instance.collection("products");
   int aa = 0;
   SampleItem? selectedMenu;
+
+  void CsvCreator() async {
+    final dataref = await FirebaseFirestore.instance
+        .collection('products')
+        .doc(widget.depart)
+        .get();
+    List<List<String>> body = [];
+    List<String> header = [
+      "S.NO",
+      "Date",
+      "Name",
+      "Department",
+      "Faculty",
+      "Company",
+      "Room",
+      "Price",
+      "URL",
+      "Specification"
+    ];
+    body.add(header);
+    int i = 1;
+    for (var data in dataref.data()!.entries) {
+      final map = data.value as Map;
+      final namefinder = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(map['faculty'])
+          .get();
+      final facultyname = namefinder
+          .data()!
+          .entries
+          .firstWhere((element) => element.key == 'name')
+          .value
+          .toString();
+      final individualData = [
+        i.toString(),
+        map['date'].toString(),
+        map['name'].toString(),
+        widget.depart.toString().toUpperCase(),
+        facultyname,
+        map['company'].toString(),
+        map['room'].toString(),
+        map['price'].toString(),
+        data.key.toString(),
+        map['spec'].toString()
+      ];
+
+      body.add(individualData);
+      i++;
+    }
+    exportCSV.myCSV(header, body);
+  }
+
+  Widget selector(IconData icon, String field, var todo) {
+    return GestureDetector(
+      onTap: todo,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(
+            width: 10,
+          ),
+          Icon(
+            icon,
+            color: Color.fromARGB(255, 0, 0, 0),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          Text(
+            field,
+            style: TextStyle(color: Colors.black),
+          ),
+        ],
+      ),
+    );
+  }
+
+  snackbar() => ScaffoldMessenger.of(context)
+    ..removeCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+        content: Column(
+          children: [
+            selector(
+                Icons.picture_as_pdf_rounded, "PDF Generator", pdfgenerator),
+            const SizedBox(
+              height: 12,
+            ),
+            selector(Icons.table_view_rounded, "Excel Generator", CsvCreator)
+          ],
+        ),
+      ),
+    );
+
+  void pdfgenerator() async {
+    final dataref = await FirebaseFirestore.instance
+        .collection('products')
+        .doc(widget.depart)
+        .get();
+    List<InvoiceItem> listofInvoice = [];
+
+    for (var data in dataref.data()!.entries) {
+      final map = data.value as Map;
+      final namefinder = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(map['faculty'])
+          .get();
+      final facultyname = namefinder
+          .data()!
+          .entries
+          .firstWhere((element) => element.key == 'name')
+          .value
+          .toString();
+
+      final invice = InvoiceItem(
+          category: widget.depart.toString().toUpperCase(),
+          url: data.key,
+          name: map['name'],
+          date: map['date'],
+          company: map['company'],
+          faculty: facultyname,
+          room: map['room'],
+          price: map['price'],
+          spec: map['spec']);
+      listofInvoice.add(invice);
+    }
+    final date = DateTime.now();
+    final dueDate = date.add(Duration(days: 7));
+
+    final invoice = Invoice(
+      items: listofInvoice,
+    );
+
+    final pdfFile = await PdfInvoiceApi.generate(invoice);
+
+    PdfApi.openFile(pdfFile);
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -87,7 +221,7 @@ class _categoryState extends State<category> {
                         size: width * 0.07,
                         color: fontcolor(1.0),
                       ),
-                      onPressed: pdfgenerator,
+                      onPressed: snackbar,
                     ),
                   ],
                 ),
@@ -101,7 +235,7 @@ class _categoryState extends State<category> {
                     ),
                     PopupMenuButton(
                       iconSize: 26,
-                      tooltip: "Sort",
+                      // tooltip: "Sort",
                       color: fontcolor(1.0),
                       initialValue: selectedMenu,
                       onSelected: (SampleItem item) => {
@@ -181,18 +315,6 @@ class _categoryState extends State<category> {
                             final snap = snapshot.data!.data()!.values.toList();
                             final qr = snapshot.data!.data()!.keys.toList();
                             DateTime now = DateTime.now();
-                            // final format =
-                            //     DateFormat('dd/MM/yy').format(snapshot.data!);
-                            // for (var i = 0; i < qr.length; i++) {
-                            //   snap[i]['date'] = DateFormat('dd/MM/yy')
-                            //       .format(DateTime.parse("2012-02-27"));
-
-                            //   print(snap[i]['date']);
-                            // }
-
-                            // print(snap);
-                            // final fer = [];
-                            // print(format);
                             aa == 0
                                 ? snap.sort((a, b) {
                                     var adate = a['date'];
@@ -222,21 +344,6 @@ class _categoryState extends State<category> {
 
                                             return aname.compareTo(bname);
                                           });
-
-                            // print(snap);
-
-                            //decendind
-                            // snap.sort((a, b) {
-                            //   return DateTime.parse(b['date'])
-                            //       .compareTo(DateTime.parse(a['date']));
-                            // });
-                            // fer.sort((a, b) => a.compareTo(b));
-                            // for (var i = 0; i < qr.length; i++) {
-                            //   // print(qr[i]);
-                            //   fer.add(snap[i]['date']);
-                            //   print(snap[i]['date']);
-                            // }
-                            // print(snap);
                             return ListView.builder(
                               itemCount: snap.length,
                               itemBuilder: (context, index) {
@@ -335,38 +442,6 @@ class _categoryState extends State<category> {
         (onError) => print("Error"));
   }
 
-  void pdfgenerator() async {
-    final dataref = await FirebaseFirestore.instance
-        .collection('products')
-        .doc(widget.depart)
-        .get();
-    List<InvoiceItem> listofInvoice = [];
-    for (var data in dataref.data()!.entries) {
-      final map = data.value as Map;
-      final invice = InvoiceItem(
-          category: widget.depart.toString().toUpperCase(),
-          url: data.key,
-          name: map['name'],
-          date: map['date'],
-          company: map['company'],
-          faculty: name,
-          room: map['room'],
-          price: map['price'],
-          spec: map['spec']);
-      listofInvoice.add(invice);
-    }
-    final date = DateTime.now();
-    final dueDate = date.add(Duration(days: 7));
-
-    final invoice = Invoice(
-      items: listofInvoice,
-    );
-
-    final pdfFile = await PdfInvoiceApi.generate(invoice);
-
-    PdfApi.openFile(pdfFile);
-  }
-
   Row log(double width, String sub, String val, Function fontcolor) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -410,7 +485,6 @@ class _facultynamerState extends State<facultynamer> {
   // late String name = '';
   @override
   void initState() {
-    // TODO: implement initState
     namefinder(widget.email);
     super.initState();
   }

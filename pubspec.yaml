@@ -63,15 +63,17 @@ dependencies:
   open_file: ^3.2.1
   # date, time, Big ntn package
   intl: ^0.18.0
+  # Cse file convertion
   to_csv: ^1.1.1
   # liquid refresher
   liquid_pull_to_refresh: ^3.0.1
   # provider
   provider: ^6.0.5
   # loading animation
-  loading_animation_widget: ^1.2.0+4
+  loading_indicator: ^3.1.0
   # ripple animation
   simple_ripple_animation: ^0.0.7
+  
 
   
 
@@ -79,8 +81,6 @@ dependencies:
 dependency_overrides:
   pdf: ^3.4.0
   intl: ^0.18.0
-
-
 
 dev_dependencies:
   flutter_test:

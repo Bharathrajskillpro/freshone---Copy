@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '../loginCRED/login&signin.dart';
 import '/pages/start.dart';
@@ -12,8 +13,23 @@ class home extends StatelessWidget {
     return StreamBuilder(
       stream: auth().authStateChanges,
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: LoadingIndicator(
+                  indicatorType: Indicator.ballClipRotateMultiple,
+                  colors: [
+                    Color.fromARGB(255, 165, 214, 255),
+                    Color.fromARGB(255, 246, 192, 255),
+                    Color.fromARGB(255, 255, 199, 217)
+                  ],
+                  strokeWidth: 2,
+                  backgroundColor: Colors.white,
+                  pathBackgroundColor: Colors.white),
+            ),
+          );
+        }
         if (snapshot.hasData) {
-          // print(auth().currentUser!.email);
           return start();
         } else {
           return losi();
