@@ -165,6 +165,7 @@ class _searchState extends State<search> {
                             detail(
                           data: data,
                           qr: barcode,
+                          fromwere: 'search',
                         ),
                       ))
                     : null,

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../pdf/api/pdf_api.dart';
+import '../../pdf/api/qrpdf.dart';
+import '../../pdf/model/qrinvoice.dart';
 import '../../theme/theme.dart';
 import 'back.dart';
 
@@ -11,10 +14,19 @@ class detail extends StatelessWidget {
     super.key,
     required this.qr,
     required this.data,
+    required this.fromwere,
   });
   final qr;
   final data;
-  // final fromwere;
+  final fromwere;
+
+  void pdfgenerator(barcode, name) async {
+    final invoice = QRInvoice(
+      item: InvoiceItem(barcode: barcode, product: name),
+    );
+    final pdfFile = await QRinvoiceApi.generate(invoice);
+    PdfApi.openFile(pdfFile);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,17 +82,22 @@ class detail extends StatelessWidget {
               spacer(height, .02),
               Align(
                 alignment: Alignment.center,
-                child: QrImage(
-                  data: qr,
-                  size: width * 0.3,
-                  foregroundColor: fontcolor(.8),
+                child: GestureDetector(
+                  onDoubleTap: () {
+                    pdfgenerator(qr, data['name']);
+                  },
+                  child: QrImage(
+                    data: qr,
+                    size: width * 0.3,
+                    foregroundColor: fontcolor(.8),
+                  ),
                 ),
               ),
               spacer(height, .02),
-              // fromwere == 'recent'
-              //     ? log(width, 'Department: ', data['department'])
-              //     : SizedBox(),
-              // fromwere == 'recent' ? spacer(height, .02) : SizedBox(),
+              fromwere == 'recent'
+                  ? log(width, 'Department: ', data['department'], fontcolor)
+                  : SizedBox(),
+              fromwere == 'recent' ? spacer(height, .02) : SizedBox(),
               log(width, 'Date: ', data['date'], fontcolor),
               spacer(height, .01),
               facultyname(

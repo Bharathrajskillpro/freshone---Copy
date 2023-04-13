@@ -73,6 +73,8 @@ dependencies:
   loading_indicator: ^3.1.0
   # ripple animation
   simple_ripple_animation: ^0.0.7
+  # cached image
+  cached_network_image: ^3.2.3
   
 
   

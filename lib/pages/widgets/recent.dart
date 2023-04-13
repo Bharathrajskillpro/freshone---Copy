@@ -115,7 +115,7 @@ class _recentState extends State<recent> with TickerProviderStateMixin {
               child: detail(
                 data: data,
                 qr: qr,
-                // fromwere: 'recent',
+                fromwere: 'recent',
               ),
             ),
           ),

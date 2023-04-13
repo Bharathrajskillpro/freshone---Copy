@@ -22,8 +22,6 @@ class category extends StatefulWidget {
   State<category> createState() => _categoryState();
 }
 
-late String name;
-
 class _categoryState extends State<category> {
   String sort = "Date in AO";
 
@@ -360,6 +358,7 @@ class _categoryState extends State<category> {
                                         child: detail(
                                           qr: qr[index],
                                           data: data,
+                                          fromwere: 'category',
                                         ),
                                       ),
                                     ),
@@ -465,7 +464,7 @@ class _categoryState extends State<category> {
   }
 }
 
-class facultynamer extends StatefulWidget {
+class facultynamer extends StatelessWidget {
   const facultynamer({
     super.key,
     required this.width,
@@ -478,29 +477,6 @@ class facultynamer extends StatefulWidget {
   final Color Function(dynamic opacity) fontcolor;
 
   @override
-  State<facultynamer> createState() => _facultynamerState();
-}
-
-class _facultynamerState extends State<facultynamer> {
-  // late String name = '';
-  @override
-  void initState() {
-    namefinder(widget.email);
-    super.initState();
-  }
-
-  Future namefinder(email) async {
-    final data =
-        await FirebaseFirestore.instance.collection('users').doc(email).get();
-    final dlist =
-        data.data()!.entries.firstWhere((element) => element.key == 'name');
-    print(dlist.value);
-    setState(() {
-      name = dlist.value;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -508,17 +484,34 @@ class _facultynamerState extends State<facultynamer> {
         Text(
           'Faculty: ',
           style: TextStyle(
-              fontSize: widget.width * 0.04,
+              fontSize: width * 0.04,
               fontWeight: FontWeight.w500,
-              color: widget.fontcolor(.5)),
+              color: fontcolor(.5)),
         ),
-        Text(
-          name,
-          style: TextStyle(
-              fontSize: widget.width * 0.045,
-              fontWeight: FontWeight.w600,
-              color: widget.fontcolor(.85)),
-        ),
+        StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(email)
+                .get()
+                .asStream(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final facultyname = snapshot.data!
+                    .data()!
+                    .entries
+                    .firstWhere((element) => element.key == 'name')
+                    .value;
+                return Text(
+                  facultyname,
+                  style: TextStyle(
+                      fontSize: width * 0.045,
+                      fontWeight: FontWeight.w600,
+                      color: fontcolor(.85)),
+                );
+              } else {
+                return SizedBox();
+              }
+            }),
       ],
     );
   }

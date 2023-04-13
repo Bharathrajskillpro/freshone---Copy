@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:freshone/auth.dart';
-import 'package:freshone/pages/widgets/back.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -112,7 +112,7 @@ class _profileState extends State<profile> {
                     width: width * 0.3,
                     height: width * .3,
                   )
-                : Image.network(
+                : CachedNetworkImage(
                     path,
                     fit: BoxFit.cover,
                     width: width * 0.3,

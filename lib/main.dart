@@ -31,17 +31,18 @@ class myApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (context) => ThemeProvider(),
-        builder: (context, _) {
-          final provider = Provider.of<ThemeProvider>(context);
-          return MaterialApp(
-            title: 'incubateQR',
-            themeMode: provider.themeMode,
-            theme: themeShifter.lighttheme,
-            darkTheme: themeShifter.darktheme,
-            debugShowCheckedModeBanner: false,
-            home: splash(),
-          );
-        });
+      create: (context) => ThemeProvider(),
+      builder: (context, _) {
+        final provider = Provider.of<ThemeProvider>(context);
+        return MaterialApp(
+          title: 'incubateQR',
+          themeMode: provider.themeMode,
+          theme: themeShifter.lighttheme,
+          darkTheme: themeShifter.darktheme,
+          debugShowCheckedModeBanner: false,
+          home: splash(),
+        );
+      },
+    );
   }
 }
