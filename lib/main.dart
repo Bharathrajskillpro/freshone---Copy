@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+
 import './theme/theme.dart';
 import 'package:provider/provider.dart';
 import '/splash/splash.dart';

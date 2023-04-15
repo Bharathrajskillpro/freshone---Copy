@@ -75,6 +75,8 @@ dependencies:
   simple_ripple_animation: ^0.0.7
   # cached image
   cached_network_image: ^3.2.3
+  # slider Image
+  carousel_slider: ^4.2.1
   
 
   

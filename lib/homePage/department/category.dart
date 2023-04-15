@@ -1,15 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:to_csv/to_csv.dart' as exportCSV;
-import 'package:freshone/pages/widgets/detail.dart';
-import 'package:open_file/open_file.dart';
+import 'package:freshone/homePage/detail.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../widgets/back.dart';
 import '../../pdf/api/pdf_api.dart';
 import '../../pdf/api/pdf_invoice_api.dart';
 import '../../pdf/model/invoice.dart';
 import '../../theme/theme.dart';
-import '../widgets/back.dart';
 
 enum SampleItem { itemOne, itemtwo, itemthree, itemfour }
 
@@ -206,7 +205,7 @@ class _categoryState extends State<category> {
                   children: [
                     back(width: width, fontcolor: fontcolor),
                     Text(
-                      widget.depart.toString().toUpperCase(),
+                      "${widget.depart.toString().toUpperCase().substring(0, 12)}..",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: width * 0.06,

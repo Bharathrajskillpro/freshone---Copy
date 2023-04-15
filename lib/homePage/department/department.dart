@@ -122,7 +122,7 @@ class _departmentState extends State<department> with TickerProviderStateMixin {
               ),
               SizedBox(
                 width: width * 0.7,
-                height: height * 0.15,
+                height: height * 0.165,
                 child: StreamBuilder(
                   stream: collection.snapshots(),
                   builder: (context, snapshot) {
@@ -177,13 +177,16 @@ class _departmentState extends State<department> with TickerProviderStateMixin {
                 end: Alignment.bottomRight,
                 colors: [widget.fontcolor(.05), widget.fontcolor(0.08)])),
         margin: const EdgeInsets.only(right: 15),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Image.asset(
               'assets/icon/$path.png',
               width: width * 0.15,
+            ),
+            SizedBox(
+              height: height * 0.01,
             ),
             Text(
               dep.length > 9

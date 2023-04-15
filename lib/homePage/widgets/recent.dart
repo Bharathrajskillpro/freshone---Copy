@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import 'detail.dart';
+import '../detail.dart';
 
 class recent extends StatefulWidget {
   recent({
@@ -59,7 +59,6 @@ class _recentState extends State<recent> with TickerProviderStateMixin {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       final snap = snapshot.data!.docs.toList();
-                      print(snap);
                       if (snap.any((element) => element.data().isNotEmpty)) {
                         return ListView.builder(
                           padding: const EdgeInsets.all(10),

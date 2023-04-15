@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'colors.dart';
+
 class ThemeProvider extends ChangeNotifier {
   ThemeMode themeMode = ThemeMode.dark;
   bool get isDark => themeMode == ThemeMode.dark;
@@ -8,6 +10,8 @@ class ThemeProvider extends ChangeNotifier {
     themeMode = ison ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
+
+  iconColor() => isDark ? colors.navbarIconIADark : colors.navbarIconIALight;
 }
 
 class themeShifter {

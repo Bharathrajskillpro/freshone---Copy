@@ -1,9 +1,14 @@
+import 'dart:io';
+
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:freshone/auth.dart';
 import 'package:freshone/pdf/api/qrpdf.dart';
 import 'package:freshone/pdf/model/qrinvoice.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -11,16 +16,16 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../pdf/api/pdf_api.dart';
 import '../../theme/theme.dart';
-import '../widgets/back.dart';
+import '../homePage/widgets/back.dart';
 
-class addpage extends StatefulWidget {
-  const addpage({super.key});
+class Add extends StatefulWidget {
+  const Add({super.key});
 
   @override
-  State<addpage> createState() => _addpageState();
+  State<Add> createState() => _AddState();
 }
 
-class _addpageState extends State<addpage> {
+class _AddState extends State<Add> {
   final collection = FirebaseFirestore.instance.collection('products');
   GlobalKey _screenShotKey = GlobalKey();
   String? catname;
@@ -30,6 +35,7 @@ class _addpageState extends State<addpage> {
   Uint8List? showimage;
   late String barcode = '';
   final faculty_email = auth().currentUser!.email;
+  List<XFile> imageFileList = [];
 
   //
   var pname = TextEditingController();
@@ -52,14 +58,16 @@ class _addpageState extends State<addpage> {
   }
 
   clear() {
+    catname = null;
+    scan = 'scan';
     pname.clear();
-    // fname.clear();
     room.clear();
     company.clear();
     price.clear();
     spec.clear();
     barcode = '';
     showimage = null;
+    imageFileList = [];
   }
 
   Future add() async {
@@ -72,7 +80,8 @@ class _addpageState extends State<addpage> {
         'room': room.text.trim(),
         'company': company.text.trim(),
         'price': int.parse(price.text.trim()),
-        'spec': spec.text.trim()
+        'spec': spec.text.trim(),
+        'path': 'products/$faculty_email/${pname.text.trim()}'
       }
     }, SetOptions(merge: true));
     print('true');
@@ -87,8 +96,27 @@ class _addpageState extends State<addpage> {
     PdfApi.openFile(pdfFile);
   }
 
+  Future imagepicker() async {
+    final image = await ImagePicker().pickMultiImage();
+    setState(() {
+      if (image.isNotEmpty) {
+        imageFileList.addAll(image);
+      }
+      uploadImage();
+    });
+  }
+
+  Future uploadImage() async {
+    for (var image in imageFileList) {
+      var oncomplete = await FirebaseStorage.instance
+          .ref(
+              'products/$faculty_email/${pname.text.trim()}/${imageFileList.indexOf(image)}')
+          .putFile(File(image.path));
+      print(oncomplete.ref.getDownloadURL().toString());
+    }
+  }
+
   var a = 0;
-  // var fontcolor = (opacity) => Color.fromRGBO(48, 40, 76, opacity);
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -98,166 +126,206 @@ class _addpageState extends State<addpage> {
         : Color.fromRGBO(48, 40, 76, opacity);
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Container(
-        height: height,
-        width: width,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isdark
-                ? const [
-                    Color.fromARGB(255, 255, 255, 255),
-                    Color.fromRGBO(235, 235, 255, 1)
-                  ]
-                : const [
-                    Color.fromRGBO(63, 64, 100, 1),
-                    Color.fromRGBO(34, 34, 61, 1)
-                  ],
-          ),
-        ),
-        padding: EdgeInsets.only(
-            top: height * .01, left: width * 0.04, right: width * 0.04),
-        child: SafeArea(
-          child: ListView(
-            children: [
-              tophead(width, fontcolor),
-              SizedBox(
-                height: height * 0.04,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Category',
-                    style: TextStyle(
-                        color: fontcolor(0.9),
-                        fontWeight: FontWeight.w500,
-                        fontSize: width * 0.045),
-                  ),
-                  catname == null
-                      ? Text(
-                          "Choose an category",
-                          style: TextStyle(
-                              color: fontcolor(.6),
-                              fontWeight: FontWeight.w600,
-                              fontSize: width * 0.035),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: ShaderMask(
-                            shaderCallback: (Rect rect) => const LinearGradient(
-                                colors: [
-                                  Color.fromARGB(255, 19, 149, 255),
-                                  Color.fromARGB(255, 234, 114, 255)
-                                ]).createShader(rect),
-                            child: Text(
-                              catname!.toUpperCase(),
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: width * 0.045),
-                            ),
-                          ),
-                        ),
+    return Container(
+      height: height,
+      width: width,
+      margin: EdgeInsets.only(top: height * 0.03),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isdark
+              ? const [
+                  Color.fromARGB(255, 255, 255, 255),
+                  Color.fromRGBO(235, 235, 255, 1)
+                ]
+              : const [
+                  Color.fromRGBO(63, 64, 100, 1),
+                  Color.fromRGBO(34, 34, 61, 1)
                 ],
+        ),
+      ),
+      padding: EdgeInsets.only(
+          top: height * .01, left: width * 0.04, right: width * 0.04),
+      child: ListView(
+        children: [
+          tophead(width, fontcolor),
+          SizedBox(
+            height: height * 0.04,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Category',
+                style: TextStyle(
+                    color: fontcolor(0.9),
+                    fontWeight: FontWeight.w500,
+                    fontSize: width * 0.045),
               ),
-              SizedBox(
-                height: height * 0.015,
-              ),
-              SizedBox(
-                height: height * 0.045,
-                child: StreamBuilder(
-                    stream: collection.snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        var list = snapshot.data!.docs.toList();
-                        return ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: list.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () => setState(() {
-                                catname = list[index].id.toString();
-                                a = index;
-                              }),
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 12),
-                                decoration: BoxDecoration(
-                                    color: (a == index && catname != null)
-                                        ? Color.fromARGB(255, 30, 154, 255)
-                                        : fontcolor(.1),
-                                    border: Border.all(color: fontcolor(.1)),
-                                    borderRadius: BorderRadius.circular(8)),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    list[index].id.toUpperCase(),
-                                    style: TextStyle(
-                                        color: (a == index && catname != null)
-                                            ? Colors.white
-                                            : fontcolor(0.9),
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: width * 0.035),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        return SizedBox();
-                      }
-                    }),
-              ),
-              SizedBox(
-                height: height * 0.02,
-              ),
-              field(width, 'Product Name', pname, TextInputType.text,
-                  Icons.inventory_2_outlined, fontcolor, ''),
-              // SizedBox(
-              //   height: height * 0.02,
-              // ),
-              // field(width, 'Faculty Name', fname, TextInputType.text,
-              //     Icons.person),
-              SizedBox(
-                height: height * 0.02,
-              ),
-              field(width, 'Room No.', room, TextInputType.text,
-                  Icons.meeting_room_rounded, fontcolor, ''),
-              SizedBox(
-                height: height * 0.02,
-              ),
-              field(width, 'Company', company, TextInputType.text,
-                  Icons.apartment_sharp, fontcolor, ""),
-              SizedBox(
-                height: height * 0.02,
-              ),
-              field(width, 'price', price, TextInputType.number,
-                  Icons.currency_rupee_rounded, fontcolor, "a"),
-              SizedBox(
-                height: height * 0.02,
-              ),
-              field(width, 'Specification', spec, TextInputType.text,
-                  Icons.description_outlined, fontcolor, ""),
-              SizedBox(
-                height: height * 0.02,
-              ),
-              shifter(width, fontcolor),
-              scanner(height, width, fontcolor),
-              SizedBox(
-                height: height * 0.04,
-              ),
-              addbutton(width),
-              SizedBox(
-                height: height * .05,
-              )
+              catname == null
+                  ? Text(
+                      "Choose an category",
+                      style: TextStyle(
+                          color: fontcolor(.6),
+                          fontWeight: FontWeight.w600,
+                          fontSize: width * 0.035),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: ShaderMask(
+                        shaderCallback: (Rect rect) => const LinearGradient(
+                            colors: [
+                              Color.fromARGB(255, 19, 149, 255),
+                              Color.fromARGB(255, 234, 114, 255)
+                            ]).createShader(rect),
+                        child: Text(
+                          catname!.toUpperCase(),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: width * 0.045),
+                        ),
+                      ),
+                    ),
             ],
           ),
-        ),
+          SizedBox(
+            height: height * 0.015,
+          ),
+          SizedBox(
+            height: height * 0.045,
+            child: StreamBuilder(
+                stream: collection.snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    var list = snapshot.data!.docs.toList();
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () => setState(() {
+                            catname = list[index].id.toString();
+                            a = index;
+                          }),
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 12),
+                            decoration: BoxDecoration(
+                                color: (a == index && catname != null)
+                                    ? Color.fromARGB(255, 30, 154, 255)
+                                    : fontcolor(.1),
+                                border: Border.all(color: fontcolor(.1)),
+                                borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                            ),
+                            child: Center(
+                              child: Text(
+                                list[index].id.toUpperCase(),
+                                style: TextStyle(
+                                    color: (a == index && catname != null)
+                                        ? Colors.white
+                                        : fontcolor(0.9),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: width * 0.035),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return SizedBox();
+                  }
+                }),
+          ),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          field(width, 'Product Name', pname, TextInputType.text,
+              Icons.inventory_2_outlined, fontcolor, ''),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          field(width, 'Room No.', room, TextInputType.text,
+              Icons.meeting_room_rounded, fontcolor, ''),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          field(width, 'Company', company, TextInputType.text,
+              Icons.apartment_sharp, fontcolor, ""),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          field(width, 'price', price, TextInputType.number,
+              Icons.currency_rupee_rounded, fontcolor, "a"),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          field(width, 'Specification', spec, TextInputType.text,
+              Icons.description_outlined, fontcolor, ""),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          shifter(width, fontcolor),
+          scanner(height, width, fontcolor),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          GestureDetector(
+            onTap: imagepicker,
+            child: Align(
+              alignment: Alignment.center,
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: fontcolor(.4)),
+                      gradient: LinearGradient(
+                          colors: [fontcolor(.1), fontcolor(.2)])),
+                  child: Text(
+                    'Add Images',
+                    style: TextStyle(
+                        fontFamily: 'TiltNeon',
+                        fontWeight: FontWeight.w600,
+                        color: fontcolor(1.0)),
+                  )),
+            ),
+          ),
+          SizedBox(
+            height: height * 0.02,
+          ),
+          imageFileList.isNotEmpty
+              ? CarouselSlider.builder(
+                  itemCount: imageFileList.length,
+                  options: CarouselOptions(
+                      height: height * 0.225,
+                      autoPlay: true,
+                      viewportFraction: .5,
+                      scrollDirection: Axis.horizontal,
+                      enlargeCenterPage: true,
+                      clipBehavior: Clip.none,
+                      enlargeStrategy: CenterPageEnlargeStrategy.height,
+                      autoPlayInterval: Duration(milliseconds: 1500),
+                      autoPlayAnimationDuration: Duration(milliseconds: 800)),
+                  itemBuilder: (context, index, realIndex) => ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      File(imageFileList[index].path),
+                      fit: BoxFit.cover,
+                      width: width * .4,
+                      height: height * .2,
+                    ),
+                  ),
+                )
+              : const SizedBox(),
+          addbutton(width),
+          SizedBox(
+            height: height * .05,
+          ),
+        ],
       ),
     );
   }
@@ -294,14 +362,13 @@ class _addpageState extends State<addpage> {
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    duration: Duration(milliseconds: 300),
+                    duration: Duration(milliseconds: 400),
                     content: Center(
                         child: Text(
                       'Successfuly added the product',
                     )),
                   ),
                 );
-                Navigator.pop(context);
               }
             }),
         style: ButtonStyle(
@@ -362,16 +429,16 @@ class _addpageState extends State<addpage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 12),
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color:
-                                      const Color.fromARGB(255, 181, 154, 255)),
-                              color: const Color.fromARGB(255, 234, 226, 255)),
-                          child: const Text(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: fontcolor(.4)),
+                              gradient: LinearGradient(
+                                  colors: [fontcolor(.1), fontcolor(.2)])),
+                          child: Text(
                             'Scan to Register',
                             style: TextStyle(
                                 fontFamily: 'TiltNeon',
-                                fontWeight: FontWeight.w600),
+                                fontWeight: FontWeight.w600,
+                                color: fontcolor(1.0)),
                           )),
                     ),
                   )
@@ -524,23 +591,17 @@ class _addpageState extends State<addpage> {
     );
   }
 
-  Row tophead(double width, var fontcolor) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        back(width: width, fontcolor: fontcolor),
-        Text(
-          'Add Product',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: width * 0.056,
-            color: fontcolor(1.0),
-          ),
+  Widget tophead(double width, var fontcolor) {
+    return Align(
+      alignment: Alignment.center,
+      child: Text(
+        'Add Product',
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: width * 0.056,
+          color: fontcolor(1.0),
         ),
-        SizedBox(
-          width: width * 0.07,
-        )
-      ],
+      ),
     );
   }
 }

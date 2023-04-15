@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 
-import '../../theme/theme.dart';
+import '../theme/theme.dart';
 
 class profile extends StatefulWidget {
   profile({super.key});
@@ -112,7 +112,7 @@ class _profileState extends State<profile> {
                     width: width * 0.3,
                     height: width * .3,
                   )
-                : CachedNetworkImage(
+                : Image.network(
                     path,
                     fit: BoxFit.cover,
                     width: width * 0.3,

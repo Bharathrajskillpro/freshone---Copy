@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:freshone/navigator/navigator.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 import '../loginCRED/login&signin.dart';
-import '/pages/start.dart';
 import '../auth.dart';
 
 class home extends StatelessWidget {
@@ -30,7 +30,7 @@ class home extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
-          return start();
+          return navigator();
         } else {
           return losi();
         }

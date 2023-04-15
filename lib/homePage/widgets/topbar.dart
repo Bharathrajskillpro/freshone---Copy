@@ -1,17 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:async/async.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:freshone/auth.dart';
-import 'package:freshone/pages/profile/profilepage.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:flutter/physics.dart';
 
+import '../../profile/profilepage.dart';
 import '../../theme/theme.dart';
 
 class topbar extends StatefulWidget {
@@ -35,12 +32,11 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
   File? localimage;
 
   String? name;
-  Uint8List? photo;
   late StreamSubscription namer;
-  late StreamSubscription photoer;
 
   @override
   void initState() {
+    print("I am Started");
     namer = FirebaseFirestore.instance
         .collection('users')
         .doc(email)
@@ -56,25 +52,11 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
       });
     });
 
-    photoer = FirebaseStorage.instance
-        .ref()
-        .storage
-        .ref()
-        .child('photo/$email')
-        .getData()
-        .asStream()
-        .listen((event) {
-      setState(() {
-        photo = event;
-      });
-    });
-
     controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
     controller.addListener(() {
       setState(() {
         top = animate.value;
-        print(animate.value);
       });
     });
 
@@ -86,7 +68,6 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
     // TODO: implement dispose
     controller.dispose();
     namer.cancel();
-    photoer.cancel();
     super.dispose();
   }
 
@@ -171,21 +152,38 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                   localimage = image;
                 });
               },
-              child: Container(
-                height: width * 0.16,
-                width: width * 0.16,
-                padding: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: widget.fontcolor(1.0), width: 2),
-                    image: localimage != null
-                        ? DecorationImage(
-                            fit: BoxFit.cover, image: FileImage(localimage!))
-                        : DecorationImage(
-                            fit: BoxFit.cover,
-                            image: MemoryImage(
-                                photo != null ? photo! : Uint8List(0)))),
-              ),
+              child: StreamBuilder(
+                  stream: FirebaseStorage.instance
+                      .ref('photo/$email')
+                      .getData()
+                      .asStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Container(
+                        height: width * 0.16,
+                        width: width * 0.16,
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: widget.fontcolor(1.0), width: 2),
+                          image: localimage != null
+                              ? DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: FileImage(localimage!),
+                                )
+                              : DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: MemoryImage(
+                                    snapshot.data!,
+                                  ),
+                                ),
+                        ),
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  }),
             )
           ],
         ),
@@ -197,13 +195,15 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                 controller.stop();
               },
               onPanUpdate: (details) {
-                setState(() {
-                  if (top >= 22) {
-                    runAnimation();
-                  } else {
-                    top = (details.localPosition.dy / 4.0);
-                  }
-                });
+                setState(
+                  () {
+                    if (top >= 22) {
+                      runAnimation();
+                    } else {
+                      top = (details.localPosition.dy / 4.0);
+                    }
+                  },
+                );
               },
               onPanEnd: (details) {
                 if (top >= 20) {
@@ -215,7 +215,6 @@ class _topbarState extends State<topbar> with SingleTickerProviderStateMixin {
                     provider.toggleTheme(!lightOn!);
                   });
                 }
-                print('down');
               },
               child: Stack(
                 clipBehavior: Clip.none,

@@ -1,15 +1,21 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../pdf/api/pdf_api.dart';
-import '../../pdf/api/qrpdf.dart';
-import '../../pdf/model/qrinvoice.dart';
-import '../../theme/theme.dart';
-import 'back.dart';
+import '../pdf/api/pdf_api.dart';
+import '../pdf/api/qrpdf.dart';
+import '../pdf/model/qrinvoice.dart';
+import '../theme/theme.dart';
+import 'widgets/back.dart';
 
-class detail extends StatelessWidget {
+class detail extends StatefulWidget {
   detail({
     super.key,
     required this.qr,
@@ -20,12 +26,37 @@ class detail extends StatelessWidget {
   final data;
   final fromwere;
 
+  @override
+  State<detail> createState() => _detailState();
+}
+
+class _detailState extends State<detail> {
   void pdfgenerator(barcode, name) async {
     final invoice = QRInvoice(
       item: InvoiceItem(barcode: barcode, product: name),
     );
     final pdfFile = await QRinvoiceApi.generate(invoice);
     PdfApi.openFile(pdfFile);
+  }
+
+  List<Uint8List> imageFileList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    imageList();
+    super.initState();
+  }
+
+  Future imageList() async {
+    var ref = await FirebaseStorage.instance.ref(widget.data['path']).listAll();
+
+    for (var img in ref.items) {
+      Uint8List? image = await img.getData();
+      setState(() {
+        image != null ? imageFileList.add(image) : null;
+      });
+    }
   }
 
   @override
@@ -67,7 +98,7 @@ class detail extends StatelessWidget {
                 children: [
                   back(width: width, fontcolor: fontcolor),
                   Text(
-                    data['name'],
+                    widget.data['name'],
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: width * 0.06,
@@ -84,32 +115,64 @@ class detail extends StatelessWidget {
                 alignment: Alignment.center,
                 child: GestureDetector(
                   onDoubleTap: () {
-                    pdfgenerator(qr, data['name']);
+                    pdfgenerator(widget.qr, widget.data['name']);
                   },
                   child: QrImage(
-                    data: qr,
+                    data: widget.qr,
                     size: width * 0.3,
                     foregroundColor: fontcolor(.8),
                   ),
                 ),
               ),
               spacer(height, .02),
-              fromwere == 'recent'
-                  ? log(width, 'Department: ', data['department'], fontcolor)
+              imageFileList.isNotEmpty
+                  ? CarouselSlider.builder(
+                      itemCount: imageFileList.length,
+                      options: CarouselOptions(
+                          height: height * 0.2,
+                          autoPlay: true,
+                          viewportFraction: .3,
+                          scrollDirection: Axis.horizontal,
+                          enlargeCenterPage: true,
+                          clipBehavior: Clip.none,
+                          enlargeStrategy: CenterPageEnlargeStrategy.height,
+                          autoPlayInterval: Duration(milliseconds: 1500),
+                          autoPlayAnimationDuration:
+                              Duration(milliseconds: 800)),
+                      itemBuilder: (context, index, realIndex) => ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.memory(
+                          imageFileList[index],
+                          fit: BoxFit.cover,
+                          // width: width * .3,
+                        ),
+                      ),
+                    )
                   : SizedBox(),
-              fromwere == 'recent' ? spacer(height, .02) : SizedBox(),
-              log(width, 'Date: ', data['date'], fontcolor),
+              imageFileList.isNotEmpty
+                  ? SizedBox(
+                      height: height * 0.02,
+                    )
+                  : SizedBox(),
+              widget.fromwere == 'recent'
+                  ? log(width, 'Department: ', widget.data['department'],
+                      fontcolor)
+                  : SizedBox(),
+              widget.fromwere == 'recent' ? spacer(height, .02) : SizedBox(),
+              log(width, 'Date: ', widget.data['date'], fontcolor),
               spacer(height, .01),
               facultyname(
-                  width: width, fontcolor: fontcolor, email: data['faculty']),
+                  width: width,
+                  fontcolor: fontcolor,
+                  email: widget.data['faculty']),
               spacer(height, .01),
-              log(width, 'Room: ', data['room'], fontcolor),
+              log(width, 'Room: ', widget.data['room'], fontcolor),
               spacer(height, .01),
-              log(width, 'Company: ', data['company'], fontcolor),
+              log(width, 'Company: ', widget.data['company'], fontcolor),
               spacer(height, .01),
-              log(width, 'Price: ', data['price'].toString(), fontcolor),
+              log(width, 'Price: ', widget.data['price'].toString(), fontcolor),
               spacer(height, .01),
-              log(width, 'Spec: ', data['spec'], fontcolor),
+              log(width, 'Spec: ', widget.data['spec'], fontcolor),
             ],
           ),
         ),

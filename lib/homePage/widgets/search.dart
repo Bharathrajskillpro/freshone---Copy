@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import 'detail.dart';
+import '../detail.dart';
 
 class search extends StatefulWidget {
   const search({
@@ -152,13 +152,16 @@ class _searchState extends State<search> {
             ],
           ),
         ),
-        checked
-            ? const SizedBox(
-                height: 10,
-              )
-            : const SizedBox(),
+        const SizedBox(
+          height: 10,
+        ),
         checked
             ? GestureDetector(
+                onHorizontalDragStart: (details) {
+                  setState(() {
+                    checked = false;
+                  });
+                },
                 onTap: () => data != null
                     ? Navigator.of(context).push(PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -205,7 +208,9 @@ class _searchState extends State<search> {
                   ),
                 ),
               )
-            : const SizedBox(),
+            : SizedBox(
+                height: height * 0.01,
+              ),
       ],
     );
   }
