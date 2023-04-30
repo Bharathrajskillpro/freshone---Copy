@@ -9,6 +9,7 @@ import '../../pdf/api/pdf_api.dart';
 import '../../pdf/api/pdf_invoice_api.dart';
 import '../../pdf/model/invoice.dart';
 import '../../theme/theme.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 enum SampleItem { itemOne, itemtwo, itemthree, itemfour }
 
@@ -27,6 +28,18 @@ class _categoryState extends State<category> {
   final collection = FirebaseFirestore.instance.collection("products");
   int aa = 0;
   SampleItem? selectedMenu;
+  RefreshController _refreshcontroller = RefreshController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _refreshcontroller.dispose();
+    super.dispose();
+  }
 
   void CsvCreator() async {
     final dataref = await FirebaseFirestore.instance
@@ -177,258 +190,290 @@ class _categoryState extends State<category> {
     var width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      body: Container(
-          height: height,
-          width: width,
-          padding: EdgeInsets.only(
-              top: height * .02, left: width * 0.04, right: width * 0.04),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isdark
-                  ? const [
-                      Color.fromARGB(255, 255, 255, 255),
-                      Color.fromRGBO(235, 235, 255, 1)
-                    ]
-                  : const [
-                      Color.fromRGBO(63, 64, 100, 1),
-                      Color.fromRGBO(34, 34, 61, 1)
-                    ],
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    back(width: width, fontcolor: fontcolor),
-                    Text(
-                      "${widget.depart.toString().toUpperCase().substring(0, 12)}..",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: width * 0.06,
-                        color: fontcolor(1.0),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.share,
-                        size: width * 0.07,
-                        color: fontcolor(1.0),
-                      ),
-                      onPressed: snackbar,
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Sorted According to $sort",
-                      style: TextStyle(
-                          color: fontcolor(.4), fontSize: width * 0.04),
-                    ),
-                    PopupMenuButton(
-                      iconSize: 26,
-                      // tooltip: "Sort",
-                      color: fontcolor(1.0),
-                      initialValue: selectedMenu,
-                      onSelected: (SampleItem item) => {
-                        setState(() {
-                          selectedMenu = item;
-                        })
-                      },
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<SampleItem>>[
-                        PopupMenuItem(
-                          child: Text(
-                            "Sort In AO",
-                            style: TextStyle(
-                                color: !isdark ? Colors.black : Colors.white),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              aa = 0;
-                              sort = "";
-                              sort += "Date in AO";
-                            });
-                          },
-                        ),
-                        PopupMenuItem(
-                          child: Text(
-                            "Sort by DO",
-                            style: TextStyle(
-                                color: !isdark ? Colors.black : Colors.white),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              aa = 1;
-                              sort = "";
-                              sort += "Date in Do";
-                            });
-                          },
-                        ),
-                        PopupMenuItem(
-                          child: Text(
-                            "Sort by Name",
-                            style: TextStyle(
-                                color: !isdark ? Colors.black : Colors.white),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              aa = 2;
-                              sort = "";
-                              sort += "Name";
-                            });
-                          },
-                        ),
-                        PopupMenuItem(
-                          child: Text(
-                            "Sort by Price",
-                            style: TextStyle(
-                                color: !isdark ? Colors.black : Colors.white),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              aa = 3;
-                              sort = "";
-                              sort += "Price";
-                            });
-                          },
-                        ),
+      body: RefreshConfiguration(
+        footerTriggerDistance: 15,
+        dragSpeedRatio: 0.91,
+        headerBuilder: () => MaterialClassicHeader(),
+        footerBuilder: () => ClassicFooter(),
+        enableLoadingWhenNoData: false,
+        enableRefreshVibrate: false,
+        enableLoadMoreVibrate: false,
+        shouldFooterFollowWhenNotFull: (state) {
+          // If you want load more with noMoreData state ,may be you should return false
+          return false;
+        },
+        child: Container(
+            height: height,
+            width: width,
+            padding: EdgeInsets.only(
+                top: height * .02, left: width * 0.04, right: width * 0.04),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isdark
+                    ? const [
+                        Color.fromARGB(255, 255, 255, 255),
+                        Color.fromRGBO(235, 235, 255, 1)
+                      ]
+                    : const [
+                        Color.fromRGBO(63, 64, 100, 1),
+                        Color.fromRGBO(34, 34, 61, 1)
                       ],
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(top: height * 0.02),
-                    child: StreamBuilder(
-                        stream: collection.doc(widget.depart).snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final snap = snapshot.data!.data()!.values.toList();
-                            final qr = snapshot.data!.data()!.keys.toList();
-                            DateTime now = DateTime.now();
-                            aa == 0
-                                ? snap.sort((a, b) {
-                                    var adate = a['date'];
-                                    var bdate = b['date'];
-                                    return adate.compareTo(bdate);
-                                  })
-                                : aa == 1
-                                    ? snap.sort((a, b) {
-                                        var adate = a['date'];
-                                        var bdate = b['date'];
-                                        return bdate.compareTo(adate);
-                                      })
-                                    : aa == 2
-                                        ? snap.sort((a, b) {
-                                            var aname = a['name']
-                                                .toString()
-                                                .toLowerCase();
-
-                                            var bname = b['name']
-                                                .toString()
-                                                .toLowerCase();
-                                            return aname.compareTo(bname);
-                                          })
-                                        : snap.sort((a, b) {
-                                            var aname = a['price'];
-                                            var bname = b['price'];
-
-                                            return aname.compareTo(bname);
-                                          });
-                            return ListView.builder(
-                              itemCount: snap.length,
-                              itemBuilder: (context, index) {
-                                final data = snap[index] as Map;
-                                return GestureDetector(
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation,
-                                              secondaryAnimation) =>
-                                          FadeTransition(
-                                        opacity: Tween<double>(begin: 1, end: 0)
-                                            .animate(widget.controller),
-                                        child: detail(
-                                          qr: qr[index],
-                                          data: data,
-                                          fromwere: 'category',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        margin:
-                                            const EdgeInsets.only(bottom: 12),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(colors: [
-                                            fontcolor(.02),
-                                            fontcolor(.06)
-                                          ]),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border:
-                                              Border.all(color: fontcolor(.1)),
-                                        ),
-                                        child: Row(children: [
-                                          QrImage(
-                                            data: qr[index],
-                                            size: width * 0.175,
-                                            foregroundColor: fontcolor(.8),
-                                          ),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              log(width, 'Name: ', data['name'],
-                                                  fontcolor),
-                                              facultynamer(
-                                                  width: width,
-                                                  fontcolor: fontcolor,
-                                                  email: data['faculty'])
-                                            ],
-                                          ),
-                                        ]),
-                                      ),
-                                      Positioned(
-                                          bottom: 15,
-                                          right: 0,
-                                          child: IconButton(
-                                            onPressed: () =>
-                                                fieldDelete(qr[index]),
-                                            icon: Icon(
-                                              Icons.delete_forever_rounded,
-                                              color: Colors.red,
-                                              size: width * 0.08,
-                                            ),
-                                          ))
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          } else {
-                            return SizedBox();
-                          }
-                        }),
-                  ),
-                )
-              ],
+              ),
             ),
-          )),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      back(width: width, fontcolor: fontcolor),
+                      Text(
+                        widget.depart.toString().length > 12
+                            ? widget.depart
+                                .toString()
+                                .toUpperCase()
+                                .substring(0, 12)
+                            : widget.depart,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: width * 0.06,
+                          color: fontcolor(1.0),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.share,
+                          size: width * 0.07,
+                          color: fontcolor(1.0),
+                        ),
+                        onPressed: snackbar,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Sorted According to $sort",
+                        style: TextStyle(
+                            color: fontcolor(.4), fontSize: width * 0.04),
+                      ),
+                      PopupMenuButton(
+                        iconSize: 26,
+                        // tooltip: "Sort",
+                        color: fontcolor(1.0),
+                        initialValue: selectedMenu,
+                        onSelected: (SampleItem item) => {
+                          setState(() {
+                            selectedMenu = item;
+                          })
+                        },
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<SampleItem>>[
+                          PopupMenuItem(
+                            child: Text(
+                              "Sort In AO",
+                              style: TextStyle(
+                                  color: !isdark ? Colors.black : Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                aa = 0;
+                                sort = "";
+                                sort += "Date in AO";
+                              });
+                            },
+                          ),
+                          PopupMenuItem(
+                            child: Text(
+                              "Sort by DO",
+                              style: TextStyle(
+                                  color: !isdark ? Colors.black : Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                aa = 1;
+                                sort = "";
+                                sort += "Date in Do";
+                              });
+                            },
+                          ),
+                          PopupMenuItem(
+                            child: Text(
+                              "Sort by Name",
+                              style: TextStyle(
+                                  color: !isdark ? Colors.black : Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                aa = 2;
+                                sort = "";
+                                sort += "Name";
+                              });
+                            },
+                          ),
+                          PopupMenuItem(
+                            child: Text(
+                              "Sort by Price",
+                              style: TextStyle(
+                                  color: !isdark ? Colors.black : Colors.white),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                aa = 3;
+                                sort = "";
+                                sort += "Price";
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.only(top: height * 0.02),
+                      child: StreamBuilder(
+                          stream: collection.doc(widget.depart).snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              final snap =
+                                  snapshot.data!.data()!.values.toList();
+                              final qr = snapshot.data!.data()!.keys.toList();
+                              DateTime now = DateTime.now();
+                              aa == 0
+                                  ? snap.sort((a, b) {
+                                      var adate = a['date'];
+                                      var bdate = b['date'];
+                                      return adate.compareTo(bdate);
+                                    })
+                                  : aa == 1
+                                      ? snap.sort((a, b) {
+                                          var adate = a['date'];
+                                          var bdate = b['date'];
+                                          return bdate.compareTo(adate);
+                                        })
+                                      : aa == 2
+                                          ? snap.sort((a, b) {
+                                              var aname = a['name']
+                                                  .toString()
+                                                  .toLowerCase();
+
+                                              var bname = b['name']
+                                                  .toString()
+                                                  .toLowerCase();
+                                              return aname.compareTo(bname);
+                                            })
+                                          : snap.sort((a, b) {
+                                              var aname = a['price'];
+                                              var bname = b['price'];
+
+                                              return aname.compareTo(bname);
+                                            });
+                              return SmartRefresher(
+                                controller: _refreshcontroller,
+                                onRefresh: () async {
+                                  await Future.delayed(
+                                      Duration(milliseconds: 2000));
+                                  _refreshcontroller.refreshCompleted();
+                                },
+                                child: ListView.builder(
+                                  itemCount: snap.length,
+                                  itemBuilder: (context, index) {
+                                    final data = snap[index] as Map;
+                                    return GestureDetector(
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation,
+                                                  secondaryAnimation) =>
+                                              FadeTransition(
+                                            opacity:
+                                                Tween<double>(begin: 1, end: 0)
+                                                    .animate(widget.controller),
+                                            child: detail(
+                                              qr: qr[index],
+                                              data: data,
+                                              fromwere: 'category',
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            margin: const EdgeInsets.only(
+                                                bottom: 12),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(colors: [
+                                                fontcolor(.02),
+                                                fontcolor(.06)
+                                              ]),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                  color: fontcolor(.1)),
+                                            ),
+                                            child: Row(children: [
+                                              QrImage(
+                                                data: qr[index],
+                                                size: width * 0.175,
+                                                foregroundColor: fontcolor(.8),
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  log(width, 'Name: ',
+                                                      data['name'], fontcolor),
+                                                  facultynamer(
+                                                      width: width,
+                                                      fontcolor: fontcolor,
+                                                      email: data['faculty'])
+                                                ],
+                                              ),
+                                            ]),
+                                          ),
+                                          AnimatedPositioned(
+                                              duration:
+                                                  Duration(milliseconds: 20),
+                                              curve: Curves.bounceIn,
+                                              bottom: 15,
+                                              right: 0,
+                                              child: IconButton(
+                                                onPressed: () =>
+                                                    fieldDelete(qr[index]),
+                                                icon: Icon(
+                                                  Icons.delete_forever_rounded,
+                                                  color: Colors.red,
+                                                  size: width * 0.08,
+                                                ),
+                                              ))
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            } else {
+                              return SizedBox();
+                            }
+                          }),
+                    ),
+                  )
+                ],
+              ),
+            )),
+      ),
     );
   }
 

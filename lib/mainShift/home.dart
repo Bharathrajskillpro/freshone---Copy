@@ -17,6 +17,7 @@ class home extends StatelessWidget {
           return const Scaffold(
             body: Center(
               child: LoadingIndicator(
+                  pause: true,
                   indicatorType: Indicator.ballClipRotateMultiple,
                   colors: [
                     Color.fromARGB(255, 165, 214, 255),
